@@ -1,0 +1,67 @@
+.section {
+    margin-top: 0.2em;
+}
+
+.title {
+    text-decoration: underline
+}
+
+.contentDiv {
+    display: flex; 
+    flex-wrap: wrap; 
+    justify-content:flex-start;
+}
+
+html {
+    background-color: #000000;
+}
+
+h1 {
+    color: #DCDCDC;
+}
+
+h2 {
+    color: #DCDCDC;
+}
+
+h3 {
+    color: #DCDCDC;
+}
+
+h4 {
+    color: #DCDCDC;
+}
+
+h6 {
+    color: #DCDCDC;
+}
+
+p {
+    margin: 0;
+    padding: 0;
+    color: #DCDCDC;
+    font-size: 15px;
+}
+
+ul {
+    color: #DCDCDC;
+}
+
+ol {
+    padding-left: 18px;
+    color: #DCDCDC;
+}
+
+li {
+    color: #DCDCDC;
+}
+
+body, footer {
+    display:flex; 
+    flex-direction:column; 
+    justify-content:center;
+}
+
+.container {
+    margin: 0 auto;
+}
