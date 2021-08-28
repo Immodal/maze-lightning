@@ -19,6 +19,11 @@ class SquareCell extends Cell {
         this.x = x
         this.y = y
         this.state = state
+        this.step = -1
+    }
+
+    setStep(step) {
+        this.step = step
     }
 
     setState(state) {

@@ -9,6 +9,8 @@ class SquareGrid {
         this.gy = gy
         this.gw = gw
         this.gh = gh
+
+        this.animationComplete = false
     }
 
     isGoal(cell) {
@@ -52,22 +54,58 @@ class SquareGrid {
         return neighbour
     }
 
-    draw(path) {
+    draw(solver, debug=false) {
         const cw = this.gw / this.nc
         const ch = this.gh / this.nr
-        stroke(0)
-        this.forEach((i, j) => {
-            const cell = this.cells.get(i, j)
-            if (cell.isState(Cell.STATES.WALL)) fill("#00ff00")
-            else if (cell.isState(Cell.STATES.PATH)) fill(255)
-            else if (cell.isState(Cell.STATES.UNVISITED)) fill(150)
-            else fill("#ff0000")
-            rect(i*cw+this.gx, j*ch+this.gy, cw, ch)
-        })
 
-        for (const c of path) {
-            fill("#ff00ff")
-            rect(c.x*cw+this.gx, c.y*ch+this.gy, cw, ch)
+        if (debug) {
+            stroke(0)
+            this.forEach((i, j) => {
+                const cell = this.cells.get(i, j)
+                if (cell.isState(Cell.STATES.WALL)) fill("#00ff00")
+                else if (cell.isState(Cell.STATES.PATH)) fill(255)
+                else if (cell.isState(Cell.STATES.UNVISITED)) fill(150)
+                else fill("#ff0000")
+                rect(i*cw+this.gx, j*ch+this.gy, cw, ch)
+            })
+        }
+
+        strokeWeight(1)
+        if (solver.pathComplete>0) {
+            const flashLength = 10
+            const framesSinceCompletion = frameCount - solver.pathComplete
+            background(map(framesSinceCompletion, 0, flashLength, 255, 0))
+            const fadeLength = 50
+            const framesSinceFlashEnd = framesSinceCompletion - flashLength
+            if (framesSinceFlashEnd>=0) {
+                const clr = map(framesSinceFlashEnd, 0, fadeLength, 255, 0)
+                fill(clr)
+                stroke(clr)
+            } else {
+                fill(255)
+                stroke(255)
+            }
+
+            for (const c of solver.path) {
+                rect(c.x*cw+this.gx, c.y*ch+this.gy, cw, ch)
+            }
+
+            const waitTime = 10
+            const framesSinceFadeEnd = framesSinceFlashEnd - fadeLength - waitTime
+            if (framesSinceFadeEnd>=0) this.animationComplete = true
+        } else {
+            background(0)
+            const tailLength = 30
+            const brightStepMin = solver.steps.length>tailLength ? solver.steps.length-tailLength : 0
+            for (let i=brightStepMin; i<solver.steps.length; i++) {
+                const brightness = map(i, brightStepMin, solver.steps.length, 0, 20)
+                for (let j=0; j<solver.steps[i].length; j++) {
+                    const c = solver.steps[i][j]
+                    stroke(brightness)
+                    fill(brightness)
+                    rect(c.x*cw+this.gx, c.y*ch+this.gy, cw, ch)
+                }
+            }
         }
     }
 
