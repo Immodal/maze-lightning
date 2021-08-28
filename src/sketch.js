@@ -1,9 +1,8 @@
 const MARGIN = 50
 const CELL_SIZE = 10
 
-let sqrGrid = null
-let rPrims = null
-let bfs = null
+let animation1 = null
+let animation2 = null
 
 function setup() {
     //frameRate(24)
@@ -12,6 +11,34 @@ function setup() {
 
     windowResized()
 }
+
+function draw() {
+    if (animation1.complete && animation2.complete) {
+        init()
+    }
+
+    flasher.draw()
+    // Search
+    if (animation1.isSearching()) {
+        animation1.drawSearch()
+    }
+
+    if (animation2.isSearching()) {
+        animation2.drawSearch()
+    }
+    // Lightning
+    if (!animation1.isSearching()) {
+        animation1.drawLightning()
+    }
+
+    if (!animation2.isSearching()) {
+        animation2.drawLightning()
+    }
+    
+    animation1.step()
+    if(frameCount %2==0)animation2.step()
+}
+
 
 function windowResized() {
     resizeCanvas(windowWidth - MARGIN, windowHeight - MARGIN)
@@ -22,20 +49,7 @@ function init() {
     const nCols = Math.floor(width/CELL_SIZE)
     const nRows = Math.floor(height/CELL_SIZE)
     
-    sqrGrid = new SquareGrid(nCols, nRows, 0, 0, width, height)
-    const start = sqrGrid.cells.get(utils.randInt(nCols),0)
-    rPrims = new RandomPrims(sqrGrid, start)
-    while (rPrims.stack.length) {
-        rPrims.step()
-    }
-    bfs = new BreadthFirstSearch(sqrGrid, start)
-}
-
-function draw() {
-    if (sqrGrid.animationComplete) {
-        init()
-    }
-    sqrGrid.draw(bfs)
-    // rPrims.step()
-    bfs.step()
+    flasher = new Flasher()
+    animation1 = new Animation(nCols, nRows, 0, 0, width, height, flasher, SquareGrid, RandomPrims, BreadthFirstSearch)
+    animation2 = new Animation(nCols, nRows, 0, 0, width, height, flasher, SquareGrid, RandomPrims, BreadthFirstSearch)
 }

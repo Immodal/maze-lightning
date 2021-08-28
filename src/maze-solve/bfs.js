@@ -1,18 +1,22 @@
 class BreadthFirstSearch {
-    constructor(grid, startCell) {
+    constructor(grid) {
         this.grid = grid
 
-        startCell.setStep(0)
+        this.grid.startCell.setStep(0)
         this.steps = []
         this.origin = new CellMap()
         this.closed = new CellSet()
-        this.closed.add(startCell)
+        this.closed.add(this.grid.startCell)
         this.queued = new CellSet()
-        this.queued.add(startCell)
-        this.queue = [startCell]
+        this.queued.add(this.grid.startCell)
+        this.queue = [this.grid.startCell]
 
         this.path = []
         this.pathComplete = 0
+
+        this.deadendRate = 0.1
+        this.deadends = []
+        this.deadendPaths = []
     }
 
     step() {
@@ -22,10 +26,13 @@ class BreadthFirstSearch {
 
             if (this.pathComplete>0 || !cell) return
             else if (this.grid.isGoal(cell)) {
-                this.buildPath(cell)
+                this.path = this.buildPath(cell)
+                this.path.reverse()
                 this.pathComplete = frameCount
             } else {
-                for(const n of this.grid.getPathNeighbours(cell)) {
+                const ns = this.grid.getPathNeighbours(cell)
+                if (ns.length<=0) this.deadends.push(cell)
+                for(const n of ns) {
                     if (!this.queued.has(n)) {
                         this.origin.add(n, cell)
                         this.closed.add(cell)
@@ -39,6 +46,11 @@ class BreadthFirstSearch {
                 }
             }
         }
+
+        if (Math.random() < this.deadendRate) {
+            const cell = utils.randSplice(this.deadends)
+            this.deadendPaths.push(this.buildPath(cell))
+        }
     }
 
     buildPath(cell) {
@@ -48,7 +60,6 @@ class BreadthFirstSearch {
             c = this.origin.get(c)
             if (c) path.push(c)
         }
-        path.reverse()
-        this.path = path
+        return path
     }
 }

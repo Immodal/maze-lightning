@@ -1,7 +1,13 @@
 class RandomPrims {
-    constructor(grid, startCell) {
+    constructor(grid) {
         this.grid = grid
-        this.stack = [startCell]
+        this.stack = [this.grid.startCell]
+    }
+
+    run() {
+        while (this.stack.length>0) {
+            this.step()
+        }
     }
 
     step() {
