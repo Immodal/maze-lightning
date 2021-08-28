@@ -2,8 +2,7 @@ class Cell {
     static STATES = {
         UNVISITED: -1,
         WALL: 0,
-        PATH: 1,
-        PADDING: 2,
+        PATH: 1
     }
 }
 
@@ -31,6 +30,7 @@ class SquareCell extends Cell {
     }
 }
 
+
 class _CellMap {
     constructor() {
         this._map = new Map()
@@ -56,6 +56,7 @@ class _CellMap {
         }
     }
 }
+
 
 class CellSet extends _CellMap {
     constructor() {

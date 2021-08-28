@@ -10,14 +10,16 @@ class BreadthFirstSearch {
         this.queue = [startCell]
 
         this.path = []
+        this.pathComplete = false
     }
 
     step() {
         const cell = this.queue.shift()
 
-        if (!cell) return
+        if (this.pathComplete || !cell) return
         else if (this.grid.isGoal(cell)) {
             this.buildPath(cell)
+            this.pathComplete = true
         } else {
             for(const n of this.grid.getPathNeighbours(cell)) {
                 if (!this.queued.has(n)) {

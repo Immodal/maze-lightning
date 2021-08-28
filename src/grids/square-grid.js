@@ -1,18 +1,9 @@
 class SquareGrid {
-    constructor(nc, nr, gx, gy, gw, gh, padding=1) {
+    constructor(nc, nr, gx, gy, gw, gh) {
         this.nr = nr
         this.nc = nc
         this.cells = new CellSet()
-        this.forEach((i, j) => {
-            const cell = new SquareCell(i, j)
-            // Padding
-            if (cell.x<=padding-1 || cell.x>=this.nc-padding 
-                    || cell.y<=padding-1 || cell.y>=this.nr-padding) {
-                cell.setState(Cell.STATES.PADDING)
-            }
-
-            this.cells.add(cell)
-        })
+        this.forEach((i, j) => this.cells.add(new SquareCell(i, j)))
 
         this.gx = gx
         this.gy = gy
@@ -58,7 +49,7 @@ class SquareGrid {
         else if (dir==SquareCell.BOTTOM) neighbour = this.cells.get(x, y+1)
         else if (dir==SquareCell.LEFT) neighbour = this.cells.get(x-1, y)
         else if (dir==SquareCell.RIGHT) neighbour = this.cells.get(x+1, y)
-        return neighbour && neighbour.isState(Cell.STATES.PADDING) ? null : neighbour
+        return neighbour
     }
 
     draw(path) {
@@ -68,7 +59,6 @@ class SquareGrid {
         this.forEach((i, j) => {
             const cell = this.cells.get(i, j)
             if (cell.isState(Cell.STATES.WALL)) fill("#00ff00")
-            else if (cell.isState(Cell.STATES.PADDING)) fill("#00ffff")
             else if (cell.isState(Cell.STATES.PATH)) fill(255)
             else if (cell.isState(Cell.STATES.UNVISITED)) fill(150)
             else fill("#ff0000")
