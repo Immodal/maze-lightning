@@ -14,8 +14,8 @@ class BreadthFirstSearch {
         this.path = []
         this.pathComplete = 0
 
-        this.deadendRateMin = 0.1
-        this.deadendRateMax = 0.5
+        this.deadendRateMin = 0.02
+        this.deadendRateMax = 0.04
         this.deadends = []
         this.deadendPaths = []
     }
@@ -33,8 +33,7 @@ class BreadthFirstSearch {
                 const ns = this.grid.getPathNeighbours(cell)
                 if (ns.length==1) {
                     this.deadends.push(cell)
-                    if (this.deadends.length>0 && Math.random() < map(this.closed.size(), 0, this.grid.cells.size(), 0, this.deadendRateMax)) {
-                        const cell = utils.randSplice(this.deadends)
+                    if (Math.random() < map(this.closed.size(), 0, this.grid.cells.size(), this.deadendRateMin, this.deadendRateMax)) {
                         this.deadendPaths.push(this.buildPath(cell))
                     }
                 }
@@ -50,6 +49,7 @@ class BreadthFirstSearch {
                         else this.steps[n.step].push(n)
                     }
                 }
+                this.path = this.buildPath(cell)
             }
         }
     }

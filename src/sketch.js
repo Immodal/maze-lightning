@@ -2,7 +2,6 @@ const MARGIN = 50
 const CELL_SIZE = 10
 
 let animation1 = null
-let animation2 = null
 
 function setup() {
     //frameRate(24)
@@ -13,32 +12,20 @@ function setup() {
 }
 
 function draw() {
-    if (animation1.complete && animation2.complete) {
+    if (animation1.complete) {
         init()
     }
 
     flasher.draw()
-    // Search
     if (animation1.isSearching()) {
         //animation1.drawSearch()
         animation1.drawArcs()
-    }
-
-    if (animation2.isSearching()) {
-        //animation2.drawSearch()
-        animation2.drawArcs()
-    }
-    // Lightning
-    if (!animation1.isSearching()) {
+        animation1.drawMainPath()
+    } else {
         animation1.drawLightning()
-    }
-
-    if (!animation2.isSearching()) {
-        animation2.drawLightning()
     }
     
     animation1.step()
-    if(frameCount %2==0)animation2.step()
 }
 
 
@@ -53,5 +40,4 @@ function init() {
     
     flasher = new Flasher()
     animation1 = new Animation(nCols, nRows, 0, 0, width, height, flasher, SquareGrid, RandomPrims, BreadthFirstSearch)
-    animation2 = new Animation(nCols, nRows, 0, 0, width, height, flasher, SquareGrid, RandomPrims, BreadthFirstSearch)
 }

@@ -25,8 +25,10 @@ class Animation {
         this.searchMaxBrightness = 100
 
         this.arcStart = new CellMap()
-        this.arcLength = 25
-        this.arcMaxBrightness = 100
+        this.arcLength = 50
+        this.fadeLength = 50
+        this.arcMinBrightness = 0
+        this.arcMaxBrightness = 50
     }
 
     step() {
@@ -85,14 +87,25 @@ class Animation {
         for (const p of this.solver.deadendPaths) {
             if (!this.arcStart.has(p[p.length-1])) this.arcStart.add(p[p.length-1], frameCount)
             const brightStepMin = p.length>this.arcLength ? p.length-this.arcLength : 0
-            const framesElapsed = frameCount - this.arcStart.get(p[p.length-1])
-            const drawLength = framesElapsed >= p.length ? p.length : framesElapsed
-            for (let i=brightStepMin; i<drawLength; i++) {
-                const brightness = map(i, brightStepMin, drawLength, 0, this.arcMaxBrightness)
+            //const framesElapsed = frameCount - this.arcStart.get(p[p.length-1])
+            //const drawLength = framesElapsed >= p.length ? p.length : framesElapsed
+            for (let i=brightStepMin; i<p.length; i++) {
+                const brightness = map(i, brightStepMin, p.length, this.arcMinBrightness, this.arcMaxBrightness)
                 stroke(brightness)
                 fill(brightness)
                 rect(p[i].x*cw+this.gx, p[i].y*ch+this.gy, cw, ch)
             }
+        }
+    }
+
+    drawMainPath() {
+        strokeWeight(1)
+        const cw = this.gw / this.grid.nc
+        const ch = this.gh / this.grid.nr
+        for (const c of this.solver.path) {
+            stroke(this.maxBrightness)
+            fill(this.maxBrightness)
+            rect(c.x*cw+this.gx, c.y*ch+this.gy, cw, ch)
         }
     }
 
