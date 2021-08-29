@@ -1,7 +1,7 @@
 class Flasher {
     constructor() {
         this.fadeLength = 10
-        this.maxBrightness = 150
+        this.maxBrightness = 200
 
         this.start = 0
         this.go = false

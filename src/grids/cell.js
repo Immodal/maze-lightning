@@ -68,12 +68,19 @@ class _CellMap {
 
 
 class CellSet extends _CellMap {
-    constructor() {
+    constructor(array=[]) {
         super()
+        if (array.length>0) {
+            this.addAll(array)
+        }
     }
 
     add(cell) {
         this._map.set(this.encode(cell), cell) 
+    }
+
+    addAll(arr) {
+        arr.forEach(v => this.add(v))
     }
 }
 

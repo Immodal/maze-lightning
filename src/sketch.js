@@ -20,7 +20,7 @@ function draw() {
     if (animation1.isSearching()) {
         //animation1.drawSearch()
         animation1.drawArcs()
-        animation1.drawMainPath()
+        animation1.drawMainPath(animation1.pathBrightness)
     } else {
         animation1.drawLightning()
     }
