@@ -1,9 +1,9 @@
 class Flasher {
     constructor() {
         this.fadeLength = 10
-        this.maxBrightness = 200
+        this.maxBrightness = 150
 
-        this.start = this.fadeLength
+        this.start = 0
         this.go = false
     }
 
@@ -13,7 +13,7 @@ class Flasher {
             this.go = false
         }
 
-        if (frameCount>this.fadeLength && frameCount-this.start<this.fadeLength) {
+        if (this.start>0 && frameCount-this.start<this.fadeLength) {
             background(this.getBrightness())
         } else {
             background(0)
