@@ -20,11 +20,13 @@ function draw() {
     flasher.draw()
     // Search
     if (animation1.isSearching()) {
-        animation1.drawSearch()
+        //animation1.drawSearch()
+        animation1.drawArcs()
     }
 
     if (animation2.isSearching()) {
-        animation2.drawSearch()
+        //animation2.drawSearch()
+        animation2.drawArcs()
     }
     // Lightning
     if (!animation1.isSearching()) {

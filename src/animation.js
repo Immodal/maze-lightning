@@ -12,15 +12,21 @@ class Animation {
         this.solver = new Solver(this.grid)
         
         this.complete = false
+
         this.flashTriggered = false
-        this.searchLength = 25
         this.flashDelay = 0
+
+        this.maxBrightness = 100
         this.fadeLength = 50
         this.fadeDelay = this.flashDelay + this.flasher.fadeLength
         this.waitTime = 10
 
-        this.maxBrightness = 100
+        this.searchLength = 25
         this.searchMaxBrightness = 100
+
+        this.arcStart = new CellMap()
+        this.arcLength = 25
+        this.arcMaxBrightness = 100
     }
 
     step() {
@@ -70,6 +76,24 @@ class Animation {
         }
 
         if (framesElapsed > this.fadeDelay + this.fadeLength) this.complete = true
+    }
+
+    drawArcs() {
+        strokeWeight(1)
+        const cw = this.gw / this.grid.nc
+        const ch = this.gh / this.grid.nr
+        for (const p of this.solver.deadendPaths) {
+            if (!this.arcStart.has(p[p.length-1])) this.arcStart.add(p[p.length-1], frameCount)
+            const brightStepMin = p.length>this.arcLength ? p.length-this.arcLength : 0
+            const framesElapsed = frameCount - this.arcStart.get(p[p.length-1])
+            const drawLength = framesElapsed >= p.length ? p.length : framesElapsed
+            for (let i=brightStepMin; i<drawLength; i++) {
+                const brightness = map(i, brightStepMin, drawLength, 0, this.arcMaxBrightness)
+                stroke(brightness)
+                fill(brightness)
+                rect(p[i].x*cw+this.gx, p[i].y*ch+this.gy, cw, ch)
+            }
+        }
     }
 
     drawSearch() {

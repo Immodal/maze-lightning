@@ -53,6 +53,10 @@ class _CellMap {
         return this._map.get(this.encode(x, y))
     }
 
+    size() {
+        return this._map.size
+    }
+
     encode(x, y) { 
         if (x instanceof Cell) {
             return this.encode(x.x, x.y) 
