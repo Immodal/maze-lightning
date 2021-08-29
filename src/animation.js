@@ -7,6 +7,9 @@ class Animation {
 
         this.flasher = flasher
         this.grid = new Grid(nc, nr)
+        this.cw = this.gw / this.grid.nc
+        this.ch = this.gh / this.grid.nr
+
         this.generator = new Generator(this.grid)
         this.generator.run()
         this.solver = new Solver(this.grid)
@@ -16,7 +19,8 @@ class Animation {
         this.flashTriggered = false
         this.flashDelay = 0
 
-        this.maxBrightness = 100
+        this.pathBrightness = 200
+        this.maxBrightness = 255
         this.fadeLength = 50
         this.fadeDelay = this.flashDelay + this.flasher.fadeLength
         this.waitTime = 10
@@ -28,7 +32,7 @@ class Animation {
         this.arcLength = 50
         this.fadeLength = 50
         this.arcMinBrightness = 0
-        this.arcMaxBrightness = 50
+        this.arcMaxBrightness = 100
     }
 
     step() {
@@ -80,10 +84,14 @@ class Animation {
         if (framesElapsed > this.fadeDelay + this.fadeLength) this.complete = true
     }
 
-    drawArcs() {
+    drawCell(cell, brightness) {
         strokeWeight(1)
-        const cw = this.gw / this.grid.nc
-        const ch = this.gh / this.grid.nr
+        stroke(brightness)
+        fill(brightness)
+        rect(cell.x*this.cw+this.gx, cell.y*this.ch+this.gy, this.cw, this.ch)
+    }
+
+    drawArcs() {
         for (const p of this.solver.deadendPaths) {
             if (!this.arcStart.has(p[p.length-1])) this.arcStart.add(p[p.length-1], frameCount)
             const brightStepMin = p.length>this.arcLength ? p.length-this.arcLength : 0
@@ -91,36 +99,23 @@ class Animation {
             //const drawLength = framesElapsed >= p.length ? p.length : framesElapsed
             for (let i=brightStepMin; i<p.length; i++) {
                 const brightness = map(i, brightStepMin, p.length, this.arcMinBrightness, this.arcMaxBrightness)
-                stroke(brightness)
-                fill(brightness)
-                rect(p[i].x*cw+this.gx, p[i].y*ch+this.gy, cw, ch)
+                this.drawCell(p[i], brightness)
             }
         }
     }
 
     drawMainPath() {
-        strokeWeight(1)
-        const cw = this.gw / this.grid.nc
-        const ch = this.gh / this.grid.nr
         for (const c of this.solver.path) {
-            stroke(this.maxBrightness)
-            fill(this.maxBrightness)
-            rect(c.x*cw+this.gx, c.y*ch+this.gy, cw, ch)
+            this.drawCell(c, this.pathBrightness)
         }
     }
 
     drawSearch() {
-        strokeWeight(1)
-        const cw = this.gw / this.grid.nc
-        const ch = this.gh / this.grid.nr
         const brightStepMin = this.solver.steps.length>this.searchLength ? this.solver.steps.length-this.searchLength : 0
         for (let i=brightStepMin; i<this.solver.steps.length; i++) {
             const brightness = map(i, brightStepMin, this.solver.steps.length, 0, this.searchMaxBrightness)
             for (let j=0; j<this.solver.steps[i].length; j++) {
-                const c = this.solver.steps[i][j]
-                stroke(brightness)
-                fill(brightness)
-                rect(c.x*cw+this.gx, c.y*ch+this.gy, cw, ch)
+                this.drawCell(this.solver.steps[i][j], brightness)
             }
         }
     }
