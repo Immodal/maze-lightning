@@ -50,7 +50,7 @@ class Animation {
         const ch = this.gh / this.grid.nr
         stroke(0)
         this.grid.forEach((i, j) => {
-            const cell = this.cells.get(i, j)
+            const cell = this.grid.cells.get(i, j)
             if (cell.isState(Cell.STATES.WALL)) fill("#00ff00")
             else if (cell.isState(Cell.STATES.PATH)) fill(255)
             else if (cell.isState(Cell.STATES.UNVISITED)) fill(150)
