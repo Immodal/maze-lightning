@@ -17,6 +17,7 @@ function draw() {
     }
 
     flasher.draw()
+    // animation1.drawDebug()
     if (animation1.isSearching()) {
         //animation1.drawSearch()
         animation1.drawArcs()
