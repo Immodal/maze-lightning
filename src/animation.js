@@ -1,12 +1,12 @@
 class Animation {
-    constructor(nc, nr, gx, gy, gw, gh, flasher, Grid, Generator, Solver) {
+    constructor(gx, gy, gw, gh, flasher, grid, Generator, Solver) {
         this.gx = gx
         this.gy = gy
         this.gw = gw
         this.gh = gh
 
         this.flasher = flasher
-        this.grid = new Grid(nc, nr)
+        this.grid = grid
         this.cw = this.gw / this.grid.nc
         this.ch = this.gh / this.grid.nr
 

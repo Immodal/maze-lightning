@@ -20,7 +20,7 @@ class RandomPrims {
         const paths = ns.filter(v => v.isState(Cell.STATES.PATH))
 
         // Has at most 1 neighbour that is part of the path, make it a path
-        if (paths.length <= 1) {
+        if (cell.equals(this.grid.goalCell) || paths.length <= 1) {
             cell.setState(Cell.STATES.PATH)
             this.stack.push(...unvisiteds)
         // Otherwise it has to be a wall

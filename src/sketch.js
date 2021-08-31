@@ -35,10 +35,17 @@ function windowResized() {
     init()
 }
 
-function init() {
+function init(goalX=-1, goalY=-1) {
     const nCols = Math.floor(width/CELL_SIZE)
     const nRows = Math.floor(height/CELL_SIZE)
+    const gCol = Math.floor(goalX/CELL_SIZE)
+    const gRow = Math.floor(goalY/CELL_SIZE)
     
     flasher = new Flasher()
-    animation1 = new Animation(nCols, nRows, 0, 0, width, height, flasher, SquareGrid, RandomPrims, BreadthFirstSearch)
+    grid = new SquareGrid(nCols, nRows, gCol, gRow)
+    animation1 = new Animation(0, 0, width, height, flasher, grid, RandomPrims, BreadthFirstSearch)
+}
+
+function mouseClicked() {
+    init(mouseX, mouseY)
 }

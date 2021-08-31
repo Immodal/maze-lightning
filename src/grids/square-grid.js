@@ -1,13 +1,23 @@
 class SquareGrid {
-    constructor(nc, nr) {
+    constructor(nc, nr, goalCol, goalRow) {
         this.nr = nr
         this.nc = nc
         this.cells = new CellSet()
         this.forEach((i, j) => this.cells.add(new SquareCell(i, j)))
-        this.startCell = this.cells.get(utils.randInt(this.nc),0)
+        if (goalCol>=0 && goalRow>=0) {
+            const xRange = 20
+            this.goalCell = this.cells.get(goalCol, goalRow)
+            const startMin = this.goalCell.x - xRange >= 0 ? this.goalCell.x - xRange : 0
+            const startMax = this.goalCell.x + xRange < this.nc ? this.goalCell.x + xRange : this.nc-1
+            this.startCell = this.cells.get(utils.randInt(startMax, startMin), 0)
+        } else {
+            this.goalCell = null
+            this.startCell = this.cells.get(utils.randInt(this.nc), 0)
+        }
     }
 
     isGoal(cell) {
+        if (this.goalCell) return this.goalCell.equals(cell)
         return cell.y == this.nr-1
     }
 

@@ -33,6 +33,10 @@ class SquareCell extends Cell {
     isState(state) {
         return this.state == state
     }
+
+    equals(cell) {
+        return cell && this.x == cell.x && this.y == cell.y
+    }
 }
 
 
