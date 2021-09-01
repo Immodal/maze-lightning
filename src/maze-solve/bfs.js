@@ -54,6 +54,10 @@ class BreadthFirstSearch {
         }
     }
 
+    noPath() {
+        return this.queue.length==0
+    }
+
     buildPath(cell) {
         const path = [cell]
         let c = cell

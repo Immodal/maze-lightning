@@ -41,6 +41,10 @@ class Lightning {
         this.solver.step()
     }
 
+    isStalled() {
+        return this.solver.noPath()
+    }
+
     isSearching() {
         return this.solver.pathComplete<=0
     }

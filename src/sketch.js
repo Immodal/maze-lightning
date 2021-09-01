@@ -2,11 +2,11 @@ const MARGIN = 50
 const CELL_SIZE = 10
 const SKELE_MIN_W = CELL_SIZE*10
 
+let skeleDeadWait = 30
+let skeleDeadFrameCount = 0
+
 let lightning1 = null
-let skeleHit = null
-let skeleIdle = null
-let skeleDead = null
-let sprites = null
+let skele = null
 
 function preload() {
     SKELEHIT.img = loadImage(SKELEHIT.src)
@@ -19,10 +19,7 @@ function setup() {
     const canvas = createCanvas(1, 1)
     canvas.parent("#cv")
 
-    skeleHit = new Sprite(SKELEHIT.img, SKELEHIT.frames, 0, 0)
-    skeleIdle = new Sprite(SKELEIDLE.img, SKELEIDLE.frames, 0, 0)
-    skeleDead = new Sprite(SKELEDEAD.img, SKELEDEAD.frames, 0, 0)
-    sprites = [skeleIdle, skeleHit, skeleDead]
+    skele = new Skeleton(0, 0)
 
     windowResized()
 }
@@ -30,22 +27,33 @@ function setup() {
 function draw() {
     flasher.draw()
     // lightning1.drawDebug()
-    if (lightning1.complete) {
-        init()
+    if (lightning1.isStalled()) init()
+    else if (!lightning1.grid.goalCell && lightning1.complete) init()
+    else if (lightning1.grid.goalCell && skele.mode==Skeleton.MODES.DEAD && skele.cycles()>=1) {
+        skeleDeadFrameCount += 1
+        skele.draw(skele.sprites[Skeleton.MODES.DEAD].len-1)
+        if (skeleDeadFrameCount>=skeleDeadWait) init()
+    }
+    else if (lightning1.complete && lightning1.grid.goalCell) {
+        skele.setMode(Skeleton.MODES.DEAD)
+        skele.draw()
+        skele.animate()
     } else if (lightning1.isSearching()) {
         //lightning1.drawSearch()
         lightning1.drawArcs()
         lightning1.drawMainPath(lightning1.pathBrightness)
         if (lightning1.grid.goalCell) {
-            skeleIdle.show()
-            skeleIdle.animate()
+            skele.setMode(Skeleton.MODES.IDLE)
+            skele.draw()
+            skele.animate()
         }
         lightning1.step()
     } else {
         lightning1.drawLightning()
         if (lightning1.grid.goalCell) {
-            skeleHit.show()
-            skeleHit.animate()
+            skele.setMode(Skeleton.MODES.HIT)
+            skele.draw()
+            skele.animate()
         }
         lightning1.step()
     }
@@ -68,12 +76,13 @@ function init(goalX=-1, goalY=-1) {
     lightning1 = new Lightning(0, 0, width, height, flasher, grid, RandomPrims, BreadthFirstSearch)
 
     const skeleW = width*0.1
-    resizeSprites(skeleW<SKELE_MIN_W ? SKELE_MIN_W : skeleW)
+    skele.resize(skeleW<SKELE_MIN_W ? SKELE_MIN_W : skeleW)
     if (goalX && goalY) {
-        skeleIdle.setPos(goalX, goalY)
-        skeleHit.setPos(goalX, goalY)
+        skele.setMode(Skeleton.MODES.IDLE)
+        skele.setPos(goalX, goalY)
     }
 
+    skeleDeadFrameCount = 0
 }
 
 function mouseClicked() {

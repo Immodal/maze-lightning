@@ -1,27 +1,25 @@
 // https://editor.p5js.org/codingtrain/sketches/vhnFx1mml
 class Sprite {
-    constructor(spriteSheet, len, x, y, speed=1) {
-        this.x = x
-        this.y = y
+    constructor(spriteSheet, len, speed=1) {
         this.len = len
         this.spriteSheet = spriteSheet
         this.resetFrames()
 
-        this.speed = speed;
-        this.index = 0;
+        this.speed = speed
+        this.index = 0
+        this.cycles = 0
     }
   
-    show() {
-        image(this.frames[this.index], this.x, this.y);
+    draw(x, y, i=null) {
+        const myX = x - this.w/2
+        const myY = y - this.h/3
+        image(this.frames[i ? i : this.index], myX, myY)
     }
   
     animate() {
+        const i = this.index
         this.index = floor(this.index+this.speed) % this.len
-    }
-
-    setPos(x, y) {
-        this.x = x - this.w/2
-        this.y = y - this.h/2
+        if (i>0 && this.index==0) this.cycles += 1
     }
 
     resize(w, h) {
@@ -31,6 +29,11 @@ class Sprite {
         }
         this.w = this.frames[0].width
         this.h = this.frames[0].height
+    }
+
+    resetAnimation() {
+        this.index = 0
+        this.cycles = 0
     }
 
     resetFrames() {
