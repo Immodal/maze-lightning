@@ -1,7 +1,8 @@
 const MARGIN = 50
 const CELL_SIZE = 10
+const SKELE_MIN_W = CELL_SIZE*10
 
-let animation1 = null
+let lightning1 = null
 let skeleHit = null
 let skeleIdle = null
 let skeleDead = null
@@ -28,25 +29,25 @@ function setup() {
 
 function draw() {
     flasher.draw()
-    // animation1.drawDebug()
-    if (animation1.complete) {
+    // lightning1.drawDebug()
+    if (lightning1.complete) {
         init()
-    } else if (animation1.isSearching()) {
-        //animation1.drawSearch()
-        animation1.drawArcs()
-        animation1.drawMainPath(animation1.pathBrightness)
-        if (animation1.grid.goalCell) {
+    } else if (lightning1.isSearching()) {
+        //lightning1.drawSearch()
+        lightning1.drawArcs()
+        lightning1.drawMainPath(lightning1.pathBrightness)
+        if (lightning1.grid.goalCell) {
             skeleIdle.show()
             skeleIdle.animate()
         }
-        animation1.step()
+        lightning1.step()
     } else {
-        animation1.drawLightning()
-        if (animation1.grid.goalCell) {
+        lightning1.drawLightning()
+        if (lightning1.grid.goalCell) {
             skeleHit.show()
             skeleHit.animate()
         }
-        animation1.step()
+        lightning1.step()
     }
 }
 
@@ -64,9 +65,10 @@ function init(goalX=-1, goalY=-1) {
     
     flasher = new Flasher()
     grid = new SquareGrid(nCols, nRows, gCol, gRow)
-    animation1 = new Animation(0, 0, width, height, flasher, grid, RandomPrims, BreadthFirstSearch)
+    lightning1 = new Lightning(0, 0, width, height, flasher, grid, RandomPrims, BreadthFirstSearch)
 
-    resizeSprites(width*0.1)
+    const skeleW = width*0.1
+    resizeSprites(skeleW<SKELE_MIN_W ? SKELE_MIN_W : skeleW)
     if (goalX && goalY) {
         skeleIdle.setPos(goalX, goalY)
         skeleHit.setPos(goalX, goalY)

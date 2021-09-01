@@ -1,4 +1,4 @@
-class Animation {
+class Lightning {
     constructor(gx, gy, gw, gh, flasher, grid, Generator, Solver) {
         this.gx = gx
         this.gy = gy
