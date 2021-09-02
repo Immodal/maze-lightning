@@ -5,10 +5,13 @@ const SKELE_MIN_W = CELL_SIZE*10
 let skeleDeadWait = 30
 let skeleDeadFrameCount = 0
 
+let bg = null
 let lightning1 = null
 let skele = null
 
 function preload() {
+    BACKGROUND0.img = loadImage(BACKGROUND0.src)
+    BACKGROUND1.img = loadImage(BACKGROUND1.src)
     SKELEHIT.img = loadImage(SKELEHIT.src)
     SKELEIDLE.img = loadImage(SKELEIDLE.src)
     SKELEDEAD.img = loadImage(SKELEDEAD.src)
@@ -20,13 +23,17 @@ function setup() {
     canvas.parent("#cv")
 
     skele = new Skeleton(0, 0)
+    bg = new Background()
 
     windowResized()
 }
 
 function draw() {
-    flasher.draw()
-    // lightning1.drawDebug()
+    if (lightning1.grid.goalCell) bg.draw(null, skele.mode == Skeleton.MODES.HIT) 
+    else {
+        bg.draw(0)
+        flasher.draw()
+    }
     if (lightning1.isStalled()) init()
     else if (!lightning1.grid.goalCell && lightning1.complete) init()
     else if (lightning1.grid.goalCell && skele.mode==Skeleton.MODES.DEAD && skele.cycles()>=1) {
@@ -39,9 +46,9 @@ function draw() {
         skele.draw()
         skele.animate()
     } else if (lightning1.isSearching()) {
-        //lightning1.drawSearch(true, lightning1.searchMaxBrightness)
+        //lightning1.drawSearch()
         lightning1.drawArcs()
-        lightning1.drawMainPath(lightning1.pathBrightness)
+        lightning1.drawMainPath(1)
         if (lightning1.grid.goalCell) {
             skele.setMode(Skeleton.MODES.IDLE)
             skele.draw()
@@ -51,17 +58,33 @@ function draw() {
     } else {
         lightning1.drawLightning()
         if (lightning1.grid.goalCell) {
+            flasher.draw()
             skele.setMode(Skeleton.MODES.HIT)
             skele.draw()
             skele.animate()
         }
         lightning1.step()
     }
+
+    if (!lightning1.grid.goalCell) {
+        bg.draw(1)
+    }
 }
 
 
 function windowResized() {
-    resizeCanvas(windowWidth - MARGIN, windowHeight - MARGIN)
+    // Round to nearest number wholly divisible by cell size
+    // to prevent gaps in lightning
+    const roundToCell = (x) => Math.ceil(x / CELL_SIZE) * CELL_SIZE - MARGIN
+    const w = roundToCell(windowWidth)
+    bg.resize(w)
+    const h = roundToCell(bg.layers[0].height)
+    const hMax = roundToCell(windowHeight)
+    resizeCanvas(w, h > hMax ? hMax : h)
+
+    const skeleW = width*0.1
+    skele.resize(skeleW<SKELE_MIN_W ? SKELE_MIN_W : skeleW)
+
     init()
 }
 
@@ -78,13 +101,10 @@ function init(goalX=-1, goalY=-1) {
     solver = new Astar(grid, 1)
     lightning1 = new Lightning(0, 0, width, height, flasher, grid, solver)
 
-    const skeleW = width*0.1
-    skele.resize(skeleW<SKELE_MIN_W ? SKELE_MIN_W : skeleW)
     if (goalX && goalY) {
         skele.setMode(Skeleton.MODES.IDLE)
         skele.setPos(goalX, goalY)
     }
-
     skeleDeadFrameCount = 0
 }
 

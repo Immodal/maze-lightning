@@ -14,9 +14,8 @@ class Flasher {
         }
 
         if (this.start>0 && frameCount-this.start<this.fadeLength) {
-            background(this.getBrightness())
-        } else {
-            background(0)
+            fill(`rgba(${this.maxBrightness}, ${this.maxBrightness}, ${this.maxBrightness}, ${this.getAlpha()})`)
+            rect(0, 0, width, height)
         }
     }
 
@@ -24,7 +23,7 @@ class Flasher {
         this.go = true
     }
 
-    getBrightness() {
-        return map(frameCount - this.start, 0, this.fadeLength, this.maxBrightness, 0)
+    getAlpha() {
+        return map(frameCount - this.start, 0, this.fadeLength, 1, 0)
     }
 }

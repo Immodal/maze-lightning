@@ -16,22 +16,20 @@ class Lightning {
         this.flashTriggered = false
         this.flashDelay = 0
 
-        this.pathBrightness = 255
         this.maxBrightness = 255
         this.fadeLength = 50
         this.fadeDelay = this.flashDelay + this.flasher.fadeLength
         this.waitTime = 10
 
-        this.glowBrightness = 100
-
         this.searchLength = 25
         this.searchMaxBrightness = 100
+        this.searchMaxAlpha = 1
 
         this.arcStart = new CellMap()
         this.arcLength = 50
         this.fadeLength = 50
-        this.arcMinBrightness = 0
-        this.arcMaxBrightness = 100
+        this.arcMinAlpha = 0.1
+        this.arcMaxAlpha = 0.6
     }
 
     step() {
@@ -67,29 +65,29 @@ class Lightning {
             this.flashTriggered = true
             this.flasher.trigger()
         }
-        // Lightning Brightness
-        let clr = null
+        // Lightning Alpha
+        let alpha = null
         if (framesElapsed>=this.fadeDelay) {
-            clr = Math.floor(map(framesElapsed-this.fadeDelay, 0, this.fadeLength, this.maxBrightness, 0, true))
+            alpha = map(framesElapsed-this.fadeDelay, 0, this.fadeLength, 1, 0, true)
         } else {
-            clr = this.maxBrightness
+            alpha = 1
         }
         // Draw lightning
-        this.drawMainPath(clr, 10)
+        this.drawMainPath(alpha, 10)
 
         if (framesElapsed > this.fadeDelay + this.fadeLength) this.complete = true
     }
 
     drawCell(cell, clr) {
-        stroke(clr)
+        noStroke()
         fill(clr)
         rect(cell.x*this.cw+this.gx, cell.y*this.ch+this.gy, this.cw, this.ch)
     }
 
-    drawGlow(cell, brightness, glowRange, exclusions) {
+    drawGlow(cell, alpha, glowRange, exclusions) {
         noStroke()
         for (let i=1; i<glowRange; i++ ) {
-            const clr = `rgba(0,0,${brightness},${map(i,1,glowRange,0.5,0)})`
+            const clr = `rgba(0,0,${this.maxBrightness},${map(i,1,glowRange,alpha*0.5,0)})`
             fill(clr)
             if (cell.x+i<this.grid.nc && !exclusions.has(cell.x+i, cell.y)) {
                 rect((cell.x+i)*this.cw+this.gx, cell.y*this.ch+this.gy, this.cw, this.ch)
@@ -109,30 +107,30 @@ class Lightning {
     drawArcs() {
         for (const p of this.solver.deadendPaths) {
             if (!this.arcStart.has(p[p.length-1])) this.arcStart.add(p[p.length-1], frameCount)
-            const brightStepMin = p.length>this.arcLength ? p.length-this.arcLength : 0
+            const alphaStepMin = p.length>this.arcLength ? p.length-this.arcLength : 0
             const exclusions = new CellSet(p)
-            for (let i=brightStepMin; i<p.length; i++) {
-                const brightness = Math.floor(map(i, brightStepMin, p.length, this.arcMinBrightness, this.arcMaxBrightness))
-                this.drawCell(p[i], brightness)
-                this.drawGlow(p[i], brightness, 2, exclusions)
+            for (let i=alphaStepMin; i<p.length; i++) {
+                const alpha = map(i, alphaStepMin, p.length, this.arcMinAlpha, this.arcMaxAlpha)
+                this.drawCell(p[i], `rgba(${this.maxBrightness}, ${this.maxBrightness}, ${this.maxBrightness}, ${alpha})`)
+                this.drawGlow(p[i], alpha, 2, exclusions)
             }
         }
     }
 
-    drawMainPath(brightness, glowRange=3) {
+    drawMainPath(alpha, glowRange=3) {
         const exclusions = new CellSet(this.solver.path)
         for (const c of this.solver.path) {
-            this.drawCell(c, brightness)
-            this.drawGlow(c, brightness, glowRange, exclusions)
+            this.drawCell(c, `rgba(${this.maxBrightness}, ${this.maxBrightness}, ${this.maxBrightness}, ${alpha})`)
+            this.drawGlow(c, alpha, glowRange, exclusions)
         }
     }
 
-    drawSearch(drawAll=false, minBrightness=0) {
+    drawSearch(drawAll=false) {
         const brightStepMin = this.solver.steps.length>this.searchLength ? this.solver.steps.length-this.searchLength : 0
         for (let i=drawAll?0:brightStepMin; i<this.solver.steps.length; i++) {
-            const brightness = map(i, brightStepMin, this.solver.steps.length, minBrightness, this.searchMaxBrightness)
+            const alpha = map(i, brightStepMin, this.solver.steps.length, 0, this.searchMaxAlpha)
             for (let j=0; j<this.solver.steps[i].length; j++) {
-                this.drawCell(this.solver.steps[i][j], brightness)
+                this.drawCell(this.solver.steps[i][j], `rgba(${this.searchMaxBrightness},${this.searchMaxBrightness},${this.searchMaxBrightness},${alpha})`)
             }
         }
     }
