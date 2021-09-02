@@ -1,5 +1,5 @@
 class Lightning {
-    constructor(gx, gy, gw, gh, flasher, grid, Generator, Solver) {
+    constructor(gx, gy, gw, gh, flasher, grid, solver) {
         this.gx = gx
         this.gy = gy
         this.gw = gw
@@ -7,12 +7,9 @@ class Lightning {
 
         this.flasher = flasher
         this.grid = grid
+        this.solver = solver
         this.cw = this.gw / this.grid.nc
         this.ch = this.gh / this.grid.nr
-
-        this.generator = new Generator(this.grid)
-        this.generator.run()
-        this.solver = new Solver(this.grid)
         
         this.complete = false
 
@@ -130,10 +127,10 @@ class Lightning {
         }
     }
 
-    drawSearch() {
+    drawSearch(drawAll=false, minBrightness=0) {
         const brightStepMin = this.solver.steps.length>this.searchLength ? this.solver.steps.length-this.searchLength : 0
-        for (let i=brightStepMin; i<this.solver.steps.length; i++) {
-            const brightness = map(i, brightStepMin, this.solver.steps.length, 0, this.searchMaxBrightness)
+        for (let i=drawAll?0:brightStepMin; i<this.solver.steps.length; i++) {
+            const brightness = map(i, brightStepMin, this.solver.steps.length, minBrightness, this.searchMaxBrightness)
             for (let j=0; j<this.solver.steps[i].length; j++) {
                 this.drawCell(this.solver.steps[i][j], brightness)
             }

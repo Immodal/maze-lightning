@@ -34,6 +34,10 @@ class SquareCell extends Cell {
         return this.state == state
     }
 
+    dist(cell) {
+        return dist(this.x, this.y, cell.x, cell.y)
+    }
+
     equals(cell) {
         return cell && this.x == cell.x && this.y == cell.y
     }

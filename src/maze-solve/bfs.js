@@ -50,9 +50,12 @@ class BreadthFirstSearch {
                     }
                 }
                 this.path = this.buildPath(cell)
+                this.sortQueue()
             }
         }
     }
+
+    sortQueue() {}
 
     noPath() {
         return this.queue.length==0

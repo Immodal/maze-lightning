@@ -39,7 +39,7 @@ function draw() {
         skele.draw()
         skele.animate()
     } else if (lightning1.isSearching()) {
-        //lightning1.drawSearch()
+        //lightning1.drawSearch(true, lightning1.searchMaxBrightness)
         lightning1.drawArcs()
         lightning1.drawMainPath(lightning1.pathBrightness)
         if (lightning1.grid.goalCell) {
@@ -73,7 +73,10 @@ function init(goalX=-1, goalY=-1) {
     
     flasher = new Flasher()
     grid = new SquareGrid(nCols, nRows, gCol, gRow)
-    lightning1 = new Lightning(0, 0, width, height, flasher, grid, RandomPrims, BreadthFirstSearch)
+    maze_gen = new RandomPrims(grid)
+    maze_gen.run()
+    solver = new Astar(grid, 1)
+    lightning1 = new Lightning(0, 0, width, height, flasher, grid, solver)
 
     const skeleW = width*0.1
     skele.resize(skeleW<SKELE_MIN_W ? SKELE_MIN_W : skeleW)
