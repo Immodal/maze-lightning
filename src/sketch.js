@@ -1,6 +1,6 @@
 const MARGIN = 50
 const CELL_SIZE = 10
-const SKELE_MIN_W = CELL_SIZE*10
+const SKELE_SIZE_RATIO = 0.1
 
 let skeleDeadWait = 30
 let skeleDeadFrameCount = 0
@@ -81,8 +81,7 @@ function windowResized() {
     const hMax = roundToCell(windowHeight)
     resizeCanvas(w, h > hMax ? hMax : h)
 
-    const skeleW = width*0.1
-    skele.resize(skeleW<SKELE_MIN_W ? SKELE_MIN_W : skeleW)
+    skele.resize(width*SKELE_SIZE_RATIO)
 
     init()
 }
@@ -108,7 +107,7 @@ function init(goalX=-1, goalY=-1) {
 }
 
 function mouseClicked() {
-    init(mouseX, mouseY)
+    if (mouseX>0 && mouseX<width && mouseY>0 && mouseY<height) init(mouseX, mouseY)
 }
 
 function resizeSprites(w) {
