@@ -4,12 +4,14 @@ class Background {
     }
 
     draw(i=null, shake=false) {
+        const x = width/2 - this.layers[0].width/2
+        const y = height - this.layers[0].height
         const drawLayer = l => {
             const xShake = shake ? Math.random() * 10 - 5 : 0
             const yShake = shake ? Math.random() * 10 - 5 : 0
-            image(this.layers[l], x+xShake, yShake+this.layersYOffset[l])
+            const layer = this.layers[l]
+            image(layer, x+xShake, y+yShake+this.layersYOffset[l]*layer.height)
         }
-        const x = width/2 - this.layers[0].width/2
         // offset so always centered
         if (i!==null && i>=0) {
             drawLayer(i)
@@ -33,6 +35,6 @@ class Background {
             utils.copyImage(BACKGROUND0.img),
             utils.copyImage(BACKGROUND1.img)
         ]
-        this.layersYOffset = [0, 100]
+        this.layersYOffset = [0, 0.25]
     }
 }
