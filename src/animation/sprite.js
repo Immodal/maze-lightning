@@ -7,6 +7,7 @@ class Sprite {
 
         this.speed = speed
         this.index = 0
+        this.cumulativeIndex = 0
         this.cycles = 0
     }
   
@@ -18,7 +19,12 @@ class Sprite {
   
     animate() {
         const i = this.index
-        this.index = floor(this.index+this.speed) % this.len
+        this.cumulativeIndex += this.speed
+        if (this.cumulativeIndex>=1) {
+            this.index = floor(this.index + this.cumulativeIndex) % this.len
+            this.cumulativeIndex = 0
+        }
+        
         if (i>0 && this.index==0) this.cycles += 1
     }
 

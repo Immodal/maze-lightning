@@ -18,7 +18,6 @@ function preload() {
 }
 
 function setup() {
-    //frameRate(24)
     const canvas = createCanvas(1, 1)
     canvas.parent("#cv")
 
