@@ -1,3 +1,5 @@
+//TODO Resize using https://p5js.org/reference/#/p5/noSmooth
+
 const MARGIN = 50
 const CELL_SIZE = 10
 const SKELE_SIZE_RATIO = 0.1
@@ -28,46 +30,75 @@ function setup() {
 }
 
 function draw() {
-    if (lightning1.grid.goalCell) bg.draw(null, skele.mode == Skeleton.MODES.HIT) 
-    else {
-        bg.draw(0)
-        flasher.draw()
+    // Stalled or no goal completion
+    if (lightning1.isStalled() || 
+        !lightning1.grid.goalCell && lightning1.complete) {
+        init()
+    // Skele is dead, wait for set number of frames
+    } else if (lightning1.grid.goalCell && skele.mode==Skeleton.MODES.DEAD && skele.cycles()>=1) {
+        runWithBackground(skeleDeadHoldTime)
     }
-    if (lightning1.isStalled()) init()
-    else if (!lightning1.grid.goalCell && lightning1.complete) init()
-    else if (lightning1.grid.goalCell && skele.mode==Skeleton.MODES.DEAD && skele.cycles()>=1) {
-        skeleDeadFrameCount += 1
-        skele.draw(skele.sprites[Skeleton.MODES.DEAD].len-1)
-        if (skeleDeadFrameCount>=skeleDeadWait) init()
-    }
+    // Skele death animation
     else if (lightning1.complete && lightning1.grid.goalCell) {
-        skele.setMode(Skeleton.MODES.DEAD)
-        skele.draw()
-        skele.animate()
+        runWithBackground(skeleDead)
+    // Lightning search
     } else if (lightning1.isSearching()) {
-        //lightning1.drawSearch()
-        lightning1.drawArcs()
-        lightning1.drawMainPath(1)
-        if (lightning1.grid.goalCell) {
-            skele.setMode(Skeleton.MODES.IDLE)
-            skele.draw()
-            skele.animate()
-        }
-        lightning1.step()
+        runWithBackground(lightningSearching)
+    // Lightning strike
     } else {
-        lightning1.drawLightning()
-        if (lightning1.grid.goalCell) {
-            flasher.draw()
-            skele.setMode(Skeleton.MODES.HIT)
-            skele.draw()
-            skele.animate()
-        }
-        lightning1.step()
+        runWithBackground(lightningStrike)
     }
+}
+
+
+function runWithBackground(fn) {
+    if (lightning1.grid.goalCell) bg.draw(null, skele.mode == Skeleton.MODES.HIT) 
+    else bg.draw(0)
+
+    fn()
 
     if (!lightning1.grid.goalCell) {
         bg.draw(1)
     }
+}
+
+
+function lightningSearching() {
+    //lightning1.drawSearch()
+    lightning1.drawArcs()
+    lightning1.drawMainPath(1)
+    if (lightning1.grid.goalCell) {
+        skele.setMode(Skeleton.MODES.IDLE)
+        skele.draw()
+        skele.animate()
+    }
+    lightning1.step()
+}
+
+
+function lightningStrike() {
+    lightning1.drawLightning()
+    flasher.draw()
+    if (lightning1.grid.goalCell) {
+        skele.setMode(Skeleton.MODES.HIT)
+        skele.draw()
+        skele.animate()
+    }
+    lightning1.step()
+}
+
+
+function skeleDead() {
+    skele.setMode(Skeleton.MODES.DEAD)
+    skele.draw()
+    skele.animate()
+}
+
+
+function skeleDeadHoldTime() {
+    skeleDeadFrameCount += 1
+    skele.draw(skele.sprites[Skeleton.MODES.DEAD].len-1)
+    if (skeleDeadFrameCount>=skeleDeadWait) init()
 }
 
 
@@ -90,8 +121,9 @@ function init(goalX=-1, goalY=-1) {
     const nCols = Math.floor(width/CELL_SIZE)
     const nRows = Math.floor(height/CELL_SIZE)
     const gCol = Math.floor(goalX/CELL_SIZE)
-    const gRow = Math.floor(goalY/CELL_SIZE)
-    
+    // Tie goal to bottom
+    const gRow = Math.floor(height/CELL_SIZE) - 1
+
     flasher = new Flasher()
     grid = new SquareGrid(nCols, nRows, gCol, gRow)
     maze_gen = new RandomPrims(grid)
@@ -101,18 +133,11 @@ function init(goalX=-1, goalY=-1) {
 
     if (goalX && goalY) {
         skele.setMode(Skeleton.MODES.IDLE)
-        skele.setPos(goalX, goalY)
+        skele.setPos(goalX, height-skele.getHeight())
     }
     skeleDeadFrameCount = 0
 }
 
 function mouseClicked() {
     if (mouseX>0 && mouseX<width && mouseY>0 && mouseY<height) init(mouseX, mouseY)
-}
-
-function resizeSprites(w) {
-    const owMax = sprites.reduce((p, c) => p.ow > c.ow ? p : c).ow
-    for (const s of sprites) {
-        s.resize(w*s.ow/owMax, 0)
-    }
 }

@@ -5,6 +5,8 @@ class Skeleton {
         DEAD: 2,
     }
 
+    static HEIGHT_ADJUSTMENT = 0.67
+
     constructor(x, y) {
         this.x = x
         this.y = y
@@ -13,6 +15,10 @@ class Skeleton {
         this.sprites[Skeleton.MODES.HIT] = new Sprite(SKELEHIT.img, SKELEHIT.frames)
         this.sprites[Skeleton.MODES.IDLE] = new Sprite(SKELEIDLE.img, SKELEIDLE.frames, 0.5)
         this.sprites[Skeleton.MODES.DEAD] = new Sprite(SKELEDEAD.img, SKELEDEAD.frames)
+    }
+
+    getHeight() {
+        return this.sprites[0].frames[0].height*Skeleton.HEIGHT_ADJUSTMENT
     }
 
     setPos(x, y) {
