@@ -23,6 +23,8 @@ function preload() {
     SKELEHIT.img = loadImage(SKELEHIT.src)
     SKELEIDLE.img = loadImage(SKELEIDLE.src)
     SKELEDEAD.img = loadImage(SKELEDEAD.src)
+    SKELEWALKRIGHT.img = loadImage(SKELEWALKRIGHT.src)
+    SKELEWALKLEFT.img = loadImage(SKELEWALKLEFT.src)
 }
 
 function setup() {
@@ -38,7 +40,7 @@ function setup() {
 function draw() {
     // Stalled or no goal completion
     if (lightning1.isStalled() ||
-        lightning1.complete && skele.mode==Skeleton.MODES.IDLE) {
+        lightning1.complete && (skele.mode==Skeleton.MODES.IDLE || skele.mode==Skeleton.MODES.WALKLEFT || skele.mode == Skeleton.MODES.WALKRIGHT)) {
         randomInit()
     // Skele is dead, wait for set number of frames
     } else if (skele.mode==Skeleton.MODES.DEAD && skele.cycles()>=1) {
@@ -75,7 +77,6 @@ function lightningSearching() {
     lightning1.drawArcs()
     lightning1.drawMainPath(1)
     if (lightning1.grid.goalCell) {
-        skele.setMode(Skeleton.MODES.IDLE)
         skele.draw()
         skele.animate()
     }
@@ -134,6 +135,8 @@ function windowResized() {
     const xMax = Math.floor(width-gridSize*CELL_SIZE/2)
     const xMin = Math.floor(gridSize*CELL_SIZE/2)
     skele.setPos(utils.randInt(xMax, xMin), height-skele.getHeight())
+    skele.moveTargetX = null
+    skele.moveTargetY = null
     
     randomInit()
 }
@@ -161,7 +164,12 @@ function init(goalX, isTargeted=false) {
     lightning1 = new Lightning(goalX, 0, CELL_SIZE, flasher, grid, solver)
     checkedStrike = false
 
-    skele.setMode(Skeleton.MODES.IDLE)
+    if (skele.mode != Skeleton.MODES.IDLE && skele.mode != Skeleton.MODES.WALKLEFT && skele.mode != Skeleton.MODES.WALKRIGHT) skele.setMode(Skeleton.MODES.IDLE)
+    if (!skele.hasMoveTarget()) {
+        const xMax = Math.floor(width-gridSize*CELL_SIZE/2)
+        const xMin = Math.floor(gridSize*CELL_SIZE/2)
+        skele.moveTo(utils.randInt(xMax, xMin), height-skele.getHeight())
+    }
     skeleDeadFrameCount = 0
 }
 
