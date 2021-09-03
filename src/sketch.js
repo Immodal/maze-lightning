@@ -42,7 +42,7 @@ function draw() {
     } else if (lightning1.grid.goalCell && skele.mode==Skeleton.MODES.DEAD && skele.cycles()>=1) {
         runWithBackground(skeleDeadHoldTime)
     }
-    // Skele death animation
+    // Lightning has faded, Skele death animation
     else if (lightning1.complete && lightning1.grid.goalCell) {
         runWithBackground(skeleDead)
     // Lightning search
@@ -86,9 +86,14 @@ function lightningStrike() {
     lightning1.drawLightning()
     flasher.draw()
     if (lightning1.grid.goalCell) {
-        skele.setMode(Skeleton.MODES.HIT)
-        skele.draw()
-        skele.animate()
+        const goalCell = lightning1.grid.goalCell
+        const goalCellX = goalCell.x*CELL_SIZE + lightning1.gx
+        const goalCellY = goalCell.y*CELL_SIZE + lightning1.gy
+        if (skele.contains(goalCellX, goalCellY)) {
+            skele.setMode(Skeleton.MODES.HIT)
+            skele.draw()
+            skele.animate()
+        }
     }
     lightning1.step()
 }

@@ -12,9 +12,7 @@ class Sprite {
     }
   
     draw(x, y, i=null) {
-        const myX = x - this.w/2
-        const myY = y - this.h/3
-        image(this.frames[i ? i : this.index], myX, myY)
+        image(this.frames[i ? i : this.index], x, y)
     }
   
     animate() {

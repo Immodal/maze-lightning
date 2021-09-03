@@ -5,8 +5,6 @@ class Skeleton {
         DEAD: 2,
     }
 
-    static HEIGHT_ADJUSTMENT = 0.67
-
     constructor(x, y) {
         this.x = x
         this.y = y
@@ -18,7 +16,15 @@ class Skeleton {
     }
 
     getHeight() {
-        return this.sprites[0].frames[0].height*Skeleton.HEIGHT_ADJUSTMENT
+        return this.sprites[this.mode].h
+    }
+
+    getWidth() {
+        return this.sprites[this.mode].w
+    }
+
+    getLeftCornerX() {
+        return this.x-this.getWidth()/2
     }
 
     setPos(x, y) {
@@ -33,7 +39,7 @@ class Skeleton {
     }
 
     draw(i=null) {
-        this.sprites[this.mode].draw(this.x, this.y, i)
+        this.sprites[this.mode].draw(this.getLeftCornerX(), this.y, i)
     }
 
     animate() {
@@ -42,6 +48,12 @@ class Skeleton {
 
     cycles() {
         return this.sprites[this.mode].cycles
+    }
+
+    contains(x, y) {
+        const sprite = this.sprites[this.mode]
+        const cx = this.getLeftCornerX()
+        return x >= cx && x <= cx+sprite.w && y >= this.y && y <= this.y+sprite.h
     }
 
     resize(w) {
