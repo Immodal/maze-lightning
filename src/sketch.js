@@ -10,6 +10,7 @@ const MAX_GRID_SIZE = 31
 let gridSize = MAX_GRID_SIZE
 let skeleDeadWait = 30
 let skeleDeadFrameCount = 0
+let checkedStrike = false
 
 let bg = null
 let lightning1 = null
@@ -35,15 +36,14 @@ function setup() {
 
 function draw() {
     // Stalled or no goal completion
-    if (lightning1.isStalled() || 
-        !lightning1.grid.goalCell && lightning1.complete) {
+    if (lightning1.isStalled() ||
+        lightning1.complete && skele.mode==Skeleton.MODES.IDLE) {
         randomInit()
     // Skele is dead, wait for set number of frames
-    } else if (lightning1.grid.goalCell && skele.mode==Skeleton.MODES.DEAD && skele.cycles()>=1) {
+    } else if (skele.mode==Skeleton.MODES.DEAD && skele.cycles()>=1) {
         runWithBackground(skeleDeadHoldTime)
-    }
     // Lightning has faded, Skele death animation
-    else if (lightning1.complete && lightning1.grid.goalCell) {
+    } else if (lightning1.complete && (skele.mode==Skeleton.MODES.HIT || skele.mode==Skeleton.MODES.DEAD)) {
         runWithBackground(skeleDead)
     // Lightning search
     } else if (lightning1.isSearching()) {
@@ -85,16 +85,19 @@ function lightningSearching() {
 function lightningStrike() {
     lightning1.drawLightning()
     flasher.draw()
-    if (lightning1.grid.goalCell) {
-        const goalCell = lightning1.grid.goalCell
-        const goalCellX = goalCell.x*CELL_SIZE + lightning1.gx
-        const goalCellY = goalCell.y*CELL_SIZE + lightning1.gy
-        if (skele.contains(goalCellX, goalCellY)) {
-            skele.setMode(Skeleton.MODES.HIT)
-            skele.draw()
-            skele.animate()
+    if (!checkedStrike && lightning1.solver.path.length) {
+        for (const cell of lightning1.solver.path) {
+            const cellX = cell.x*CELL_SIZE + lightning1.gx
+            const cellY = cell.y*CELL_SIZE + lightning1.gy
+            if (skele.contains(cellX, cellY)) {
+                skele.setMode(Skeleton.MODES.HIT)
+                break
+            }
         }
+        checkedStrike = true
     }
+    skele.draw()
+    skele.animate()
     lightning1.step()
 }
 
@@ -126,6 +129,10 @@ function windowResized() {
     gridSize = gridSize*CELL_SIZE > width ? Math.floor(width/CELL_SIZE) : MAX_GRID_SIZE
     skele.resize(width*SKELE_SIZE_RATIO)
 
+    const xMax = Math.floor(width-gridSize*CELL_SIZE/2)
+    const xMin = Math.floor(gridSize*CELL_SIZE/2)
+    skele.setPos(utils.randInt(xMax, xMin), height-skele.getHeight())
+    
     randomInit()
 }
 
@@ -149,9 +156,9 @@ function init(goalX) {
     solver = new BreadthFirstSearch(grid)
 
     lightning1 = new Lightning(goalX, 0, CELL_SIZE, flasher, grid, solver)
+    checkedStrike = false
 
     skele.setMode(Skeleton.MODES.IDLE)
-    skele.setPos(goalX, height-skele.getHeight())
     skeleDeadFrameCount = 0
 }
 
