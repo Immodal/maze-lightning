@@ -5,7 +5,9 @@
 const MARGIN = 50
 const CELL_SIZE = 10
 const SKELE_SIZE_RATIO = 0.1
+const MAX_GRID_SIZE = 31
 
+let gridSize = MAX_GRID_SIZE
 let skeleDeadWait = 30
 let skeleDeadFrameCount = 0
 
@@ -35,7 +37,7 @@ function draw() {
     // Stalled or no goal completion
     if (lightning1.isStalled() || 
         !lightning1.grid.goalCell && lightning1.complete) {
-        init()
+        randomInit()
     // Skele is dead, wait for set number of frames
     } else if (lightning1.grid.goalCell && skele.mode==Skeleton.MODES.DEAD && skele.cycles()>=1) {
         runWithBackground(skeleDeadHoldTime)
@@ -101,7 +103,7 @@ function skeleDead() {
 function skeleDeadHoldTime() {
     skeleDeadFrameCount += 1
     skele.draw(skele.sprites[Skeleton.MODES.DEAD].len-1)
-    if (skeleDeadFrameCount>=skeleDeadWait) init()
+    if (skeleDeadFrameCount>=skeleDeadWait) randomInit()
 }
 
 
@@ -115,32 +117,38 @@ function windowResized() {
     const hMax = roundToCell(windowHeight)
     resizeCanvas(w, h > hMax ? hMax : h)
 
+    gridSize = gridSize*CELL_SIZE > width ? Math.floor(width/CELL_SIZE) : MAX_GRID_SIZE
     skele.resize(width*SKELE_SIZE_RATIO)
 
-    init()
+    randomInit()
 }
 
-function init(goalX=-1, goalY=-1) {
-    const nCols = Math.floor(width/CELL_SIZE)
+function randomInit() {
+    const xMax = Math.floor(width-gridSize*CELL_SIZE/2)
+    const xMin = Math.floor(gridSize*CELL_SIZE/2)
+    init(utils.randInt(xMax, xMin))
+}
+
+function init(goalX) {
+    const nCols = gridSize*CELL_SIZE > width ? Math.floor(width/CELL_SIZE) : gridSize
     const nRows = Math.floor(height/CELL_SIZE)
-    const gCol = Math.floor(goalX/CELL_SIZE)
-    // Tie goal to bottom
-    const gRow = Math.floor(height/CELL_SIZE) - 1
+
+    const gCol = Math.floor(nCols/2)
+    const gRow = nRows - 1 // Tie goal to bottom
 
     flasher = new Flasher()
     grid = new SquareGrid(nCols, nRows, gCol, gRow)
     maze_gen = new RandomPrims(grid)
     maze_gen.run()
-    solver = new Astar(grid, 1)
-    lightning1 = new Lightning(0, 0, width, height, flasher, grid, solver)
+    solver = new BreadthFirstSearch(grid)
 
-    if (goalX && goalY) {
-        skele.setMode(Skeleton.MODES.IDLE)
-        skele.setPos(goalX, height-skele.getHeight())
-    }
+    lightning1 = new Lightning(goalX, 0, CELL_SIZE, flasher, grid, solver)
+
+    skele.setMode(Skeleton.MODES.IDLE)
+    skele.setPos(goalX, height-skele.getHeight())
     skeleDeadFrameCount = 0
 }
 
 function mouseClicked() {
-    if (mouseX>0 && mouseX<width && mouseY>0 && mouseY<height) init(mouseX, mouseY)
+    if (mouseX>0 && mouseX<width && mouseY>0 && mouseY<height) init(mouseX)
 }

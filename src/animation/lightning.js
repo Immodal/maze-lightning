@@ -1,15 +1,12 @@
 class Lightning {
-    constructor(gx, gy, gw, gh, flasher, grid, solver) {
-        this.gx = gx
-        this.gy = gy
-        this.gw = gw
-        this.gh = gh
-
+    constructor(gx, gy, csize, flasher, grid, solver) {
         this.flasher = flasher
         this.grid = grid
         this.solver = solver
-        this.cw = this.gw / this.grid.nc
-        this.ch = this.gh / this.grid.nr
+        this.csize = csize
+
+        this.gx = Math.floor(gx/csize)*csize - Math.floor(this.grid.nc/2)*csize
+        this.gy = gy
         
         this.complete = false
 
@@ -45,8 +42,6 @@ class Lightning {
     }
 
     drawDebug() {
-        const cw = this.gw / this.grid.nc
-        const ch = this.gh / this.grid.nr
         stroke(0)
         this.grid.forEach((i, j) => {
             const cell = this.grid.cells.get(i, j)
@@ -54,7 +49,7 @@ class Lightning {
             else if (cell.isState(Cell.STATES.PATH)) fill(255)
             else if (cell.isState(Cell.STATES.UNVISITED)) fill(150)
             else fill("#ff0000")
-            rect(i*cw+this.gx, j*ch+this.gy, cw, ch)
+            rect(i*this.csize+this.gx, j*this.csize+this.gy, this.csize, this.csize)
         })
     }
 
@@ -81,7 +76,7 @@ class Lightning {
     drawCell(cell, clr) {
         noStroke()
         fill(clr)
-        rect(cell.x*this.cw+this.gx, cell.y*this.ch+this.gy, this.cw, this.ch)
+        rect(cell.x*this.csize+this.gx, cell.y*this.csize+this.gy, this.csize, this.csize)
     }
 
     drawGlow(cell, alpha, glowRange, exclusions) {
@@ -90,16 +85,16 @@ class Lightning {
             const clr = `rgba(0,0,${this.maxBrightness},${map(i,1,glowRange,alpha*0.5,0)})`
             fill(clr)
             if (cell.x+i<this.grid.nc && !exclusions.has(cell.x+i, cell.y)) {
-                rect((cell.x+i)*this.cw+this.gx, cell.y*this.ch+this.gy, this.cw, this.ch)
+                rect((cell.x+i)*this.csize+this.gx, cell.y*this.csize+this.gy, this.csize, this.csize)
             }
             if (cell.x-i>0 && !exclusions.has(cell.x-i, cell.y)) {
-                rect((cell.x-i)*this.cw+this.gx, cell.y*this.ch+this.gy, this.cw, this.ch)
+                rect((cell.x-i)*this.csize+this.gx, cell.y*this.csize+this.gy, this.csize, this.csize)
             }
             if (cell.y+i<this.grid.nr && !exclusions.has(cell.x, cell.y+i)) {
-                rect(cell.x*this.cw+this.gx, (cell.y+i)*this.ch+this.gy, this.cw, this.ch)
+                rect(cell.x*this.csize+this.gx, (cell.y+i)*this.csize+this.gy, this.csize, this.csize)
             }
             if (cell.y-i>0 && !exclusions.has(cell.x, cell.y-i)) {
-                rect(cell.x*this.cw+this.gx, (cell.y-i)*this.ch+this.gy, this.cw, this.ch)
+                rect(cell.x*this.csize+this.gx, (cell.y-i)*this.csize+this.gy, this.csize, this.csize)
             }
         }
     }
