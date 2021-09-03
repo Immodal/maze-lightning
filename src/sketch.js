@@ -1,4 +1,6 @@
 //TODO Resize using https://p5js.org/reference/#/p5/noSmooth
+//https://anokolisa.itch.io/moon-graveyard
+//https://jesse-m.itch.io/skeleton-pack
 
 const MARGIN = 50
 const CELL_SIZE = 10
@@ -64,7 +66,8 @@ function runWithBackground(fn) {
 
 
 function lightningSearching() {
-    //lightning1.drawSearch()
+    //lightning1.drawDebug()
+    //lightning1.drawSearch(true)
     lightning1.drawArcs()
     lightning1.drawMainPath(1)
     if (lightning1.grid.goalCell) {
