@@ -78,6 +78,7 @@ function lightningSearching() {
         skele.animate()
     }
     lightning1.step()
+    lightning1.step()
 }
 
 
