@@ -11,6 +11,7 @@ let gridSize = MAX_GRID_SIZE
 let skeleDeadWait = 30
 let skeleDeadFrameCount = 0
 let checkedStrike = false
+let targetedStrike = false
 
 let bg = null
 let lightning1 = null
@@ -56,13 +57,14 @@ function draw() {
 
 
 function runWithBackground(fn) {
-    if (lightning1.grid.goalCell) bg.draw(null, skele.mode == Skeleton.MODES.HIT) 
+    if (targetedStrike) bg.draw(null, skele.mode == Skeleton.MODES.HIT) 
     else bg.draw(0)
 
     fn()
 
-    if (!lightning1.grid.goalCell) {
+    if (!targetedStrike) {
         bg.draw(1)
+        skele.draw()
     }
 }
 
@@ -85,7 +87,7 @@ function lightningSearching() {
 function lightningStrike() {
     lightning1.drawLightning()
     flasher.draw()
-    if (!checkedStrike && lightning1.solver.path.length) {
+    if (targetedStrike && !checkedStrike && lightning1.solver.path.length) {
         for (const cell of lightning1.solver.path) {
             const cellX = cell.x*CELL_SIZE + lightning1.gx
             const cellY = cell.y*CELL_SIZE + lightning1.gy
@@ -142,7 +144,8 @@ function randomInit() {
     init(utils.randInt(xMax, xMin))
 }
 
-function init(goalX) {
+function init(goalX, isTargeted=false) {
+    targetedStrike = isTargeted
     const nCols = gridSize*CELL_SIZE > width ? Math.floor(width/CELL_SIZE) : gridSize
     const nRows = Math.floor(height/CELL_SIZE)
 
@@ -163,5 +166,7 @@ function init(goalX) {
 }
 
 function mouseClicked() {
-    if (mouseX>0 && mouseX<width && mouseY>0 && mouseY<height) init(mouseX)
+    if (mouseX>0 && mouseX<width && mouseY>0 && mouseY<height) {
+        init(mouseX, true)
+    }
 }
