@@ -1,8 +1,10 @@
 // https://editor.p5js.org/codingtrain/sketches/vhnFx1mml
 class Sprite {
-    constructor(spriteSheet, len, speed=1, mirror=false) {
-        this.len = len
+    constructor(spriteSheet, sheetLen, speed=1, mirror=false, reverse=false, omitFrames=[]) {
+        this.omitFrames = omitFrames
+        this.sheetLen = sheetLen
         this.spriteSheet = spriteSheet
+        this.reverse = reverse
         this.resetFrames()
 
         this.mirror = mirror
@@ -27,11 +29,15 @@ class Sprite {
         const i = this.index
         this.cumulativeIndex += this.speed
         if (this.cumulativeIndex>=1) {
-            this.index = floor(this.index + this.cumulativeIndex) % this.len
+            this.index = floor(this.index + this.cumulativeIndex) % this.length()
             this.cumulativeIndex = 0
         }
         
         if (i>0 && this.index==0) this.cycles += 1
+    }
+
+    length() {
+        return this.frames.length
     }
 
     resize(w, h) {
@@ -50,10 +56,20 @@ class Sprite {
 
     resetFrames() {
         this.frames = []
-        this.ow = this.spriteSheet.width/this.len
+        this.ow = this.spriteSheet.width/this.sheetLen
         this.oh = this.spriteSheet.height
-        for (let i = 0; i < this.len; i++) {
-            this.frames.push(this.spriteSheet.get(i*this.ow, 0, this.ow, this.oh))
+        if (this.reverse) {
+            for (let i = this.sheetLen-1; i >= 0; i--) {
+                if (this.omitFrames.indexOf(i)==-1) {
+                    this.frames.push(this.spriteSheet.get(i*this.ow, 0, this.ow, this.oh))
+                }
+            }
+        } else {
+            for (let i = 0; i < this.sheetLen; i++) {
+                if (this.omitFrames.indexOf(i)==-1) {
+                    this.frames.push(this.spriteSheet.get(i*this.ow, 0, this.ow, this.oh))
+                }
+            }
         }
 
         this.w = this.frames[0].width

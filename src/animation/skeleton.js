@@ -6,6 +6,7 @@ class Skeleton {
         HIT: 'HIT',
         IDLE: 'IDLE',
         DEAD: 'DEAD',
+        REVIVE: 'REVIVE',
         WALK: 'WALK',
     }
 
@@ -15,13 +16,17 @@ class Skeleton {
         this.mode = Skeleton.MODES.IDLE
         this.direction = Skeleton.LEFT
         this.sprites = { [`${Skeleton.LEFT}`]:{}, [`${Skeleton.RIGHT}`]:{} }
+
         this.sprites[Skeleton.RIGHT][Skeleton.MODES.HIT] = new Sprite(SKELEHIT.img, SKELEHIT.frames)
         this.sprites[Skeleton.RIGHT][Skeleton.MODES.IDLE] = new Sprite(SKELEIDLE.img, SKELEIDLE.frames, 0.25)
         this.sprites[Skeleton.RIGHT][Skeleton.MODES.DEAD] = new Sprite(SKELEDEAD.img, SKELEDEAD.frames)
+        this.sprites[Skeleton.RIGHT][Skeleton.MODES.REVIVE] = new Sprite(SKELEDEAD.img, SKELEDEAD.frames, 0.25, false, true, [0])
         this.sprites[Skeleton.RIGHT][Skeleton.MODES.WALK] = new Sprite(SKELEWALK.img, SKELEWALK.frames, 0.5)
+
         this.sprites[Skeleton.LEFT][Skeleton.MODES.HIT] = new Sprite(SKELEHIT.img, SKELEHIT.frames, 1, true)
         this.sprites[Skeleton.LEFT][Skeleton.MODES.IDLE] = new Sprite(SKELEIDLE.img, SKELEIDLE.frames, 0.25, true)
         this.sprites[Skeleton.LEFT][Skeleton.MODES.DEAD] = new Sprite(SKELEDEAD.img, SKELEDEAD.frames, 1, true)
+        this.sprites[Skeleton.LEFT][Skeleton.MODES.REVIVE] = new Sprite(SKELEDEAD.img, SKELEDEAD.frames, 0.25, true, true, [0])
         this.sprites[Skeleton.LEFT][Skeleton.MODES.WALK] = new Sprite(SKELEWALK.img, SKELEWALK.frames, 0.5, true)
 
         this.walkSpeed = 1

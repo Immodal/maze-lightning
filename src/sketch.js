@@ -8,7 +8,7 @@ const SKELE_SIZE_RATIO = 0.1
 const MAX_GRID_SIZE = 31
 
 let gridSize = MAX_GRID_SIZE
-let skeleDeadWait = 30
+let skeleDeadWait = 50
 let skeleDeadFrameCount = 0
 let checkedStrike = false
 let targetedStrike = false
@@ -38,12 +38,11 @@ function setup() {
 
 function draw() {
     // Stalled or no goal completion
-    if (lightning1.isStalled() ||
-        lightning1.complete && skele.isPatrolling()) {
+    if (lightning1.isStalled() || lightning1.complete && skele.isPatrolling()) {
         randomInit()
-    // Skele is dead, wait for set number of frames
-    } else if (skele.mode==Skeleton.MODES.DEAD && skele.cycles()>=1) {
-        runWithBackground(skeleDeadHoldTime)
+    // Revive Skele
+    } else if (skeleDeadFrameCount>=skeleDeadWait) {
+        runWithBackground(skeleRevive)
     // Lightning has faded, Skele death animation
     } else if (lightning1.complete && !skele.isPatrolling()) {
         runWithBackground(skeleDead)
@@ -75,10 +74,13 @@ function lightningSearching() {
     //lightning1.drawSearch(true)
     lightning1.drawArcs()
     lightning1.drawMainPath(1)
-    if (lightning1.grid.goalCell) {
-        skele.draw()
-        skele.animate()
+    if (skele.isPatrolling() && !skele.hasMoveTarget() && Math.random() < 0.01) {
+        const xMax = Math.floor(width-gridSize*CELL_SIZE/2)
+        const xMin = Math.floor(gridSize*CELL_SIZE/2)
+        skele.moveTo(utils.randInt(xMax, xMin), height-skele.getHeight())
     }
+    skele.draw()
+    skele.animate()
     lightning1.step()
     lightning1.step()
 }
@@ -107,14 +109,23 @@ function lightningStrike() {
 function skeleDead() {
     skele.setMode(Skeleton.MODES.DEAD)
     skele.draw()
-    skele.animate()
+    if (skele.cycles()<1) {
+        skele.animate()
+        if (skele.cycles()>=1) {
+            const sprite = skele.getSprite(Skeleton.MODES.DEAD)
+            sprite.index = sprite.length()-1
+        }
+    }
+    // Skele is dead, wait for set number of frames
+    else skeleDeadFrameCount += 1
 }
 
 
-function skeleDeadHoldTime() {
-    skeleDeadFrameCount += 1
-    skele.draw(skele.getSprite(Skeleton.MODES.DEAD).len-1)
-    if (skeleDeadFrameCount>=skeleDeadWait) randomInit()
+function skeleRevive() {
+    skele.setMode(Skeleton.MODES.REVIVE)
+    skele.draw()
+    skele.animate()
+    if (skele.cycles()>=1) randomInit()
 }
 
 
@@ -164,11 +175,6 @@ function init(goalX, isTargeted=false) {
     checkedStrike = false
 
     if (!skele.isPatrolling()) skele.setMode(Skeleton.MODES.IDLE)
-    if (!skele.hasMoveTarget()) {
-        const xMax = Math.floor(width-gridSize*CELL_SIZE/2)
-        const xMin = Math.floor(gridSize*CELL_SIZE/2)
-        skele.moveTo(utils.randInt(xMax, xMin), height-skele.getHeight())
-    }
     skeleDeadFrameCount = 0
 }
 
