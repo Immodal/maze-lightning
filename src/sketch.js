@@ -1,13 +1,9 @@
-//TODO Resize using https://p5js.org/reference/#/p5/noSmooth
-//https://anokolisa.itch.io/moon-graveyard
-//https://jesse-m.itch.io/skeleton-pack
-
 const MARGIN = 50
 const SKELE_SIZE_RATIO = 0.1
 
-const TITLE_SIZE = 25
-const TEXT_SIZE = 16
-const SUBTEXT_SIZE = 12
+const TITLE_SIZE = 20
+const TEXT_SIZE = 12
+const SUBTEXT_SIZE = 10
 const TEXT_MARGIN = 5
 
 const MAX_GRID_SIZE = 31
