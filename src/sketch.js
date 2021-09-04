@@ -1,5 +1,8 @@
 const MARGIN = 50
 const SKELE_SIZE_RATIO = 0.1
+const GHOST_SIZE_RATIO = 0.04
+const GHOST_X_POS = 0.814
+const GHOST_Y_BOTTOM_OFFSET = 0.12
 
 const TITLE_SIZE = 20
 const TEXT_SIZE = 12
@@ -20,9 +23,17 @@ let randomStrikeDelayFrameCount = 0
 let checkedStrike = false
 let targetedStrike = false
 
+const GHOST_FADE_TIME = 50
+const GHOST_WAIT_TIME = 100
+let ghostEnabled = false
+let ghostEnterFadeFrameCount = 0
+let ghostWaitFrameCount = 0
+let ghostExitFadeFrameCount = 0
+
 let bg = null
 let lightning1 = null
 let skele = null
+let ghost = null
 
 function preload() {
     BACKGROUND0.img = loadImage(BACKGROUND0.src)
@@ -31,6 +42,7 @@ function preload() {
     SKELEIDLE.img = loadImage(SKELEIDLE.src)
     SKELEDEAD.img = loadImage(SKELEDEAD.src)
     SKELEWALK.img = loadImage(SKELEWALK.src)
+    GHOSTIDLE.img = loadImage(GHOSTIDLE.src)
 }
 
 function setup() {
@@ -39,6 +51,7 @@ function setup() {
     textFont('Georgia')
 
     skele = new Skeleton(0, 0)
+    ghost = new Ghost(0, 0)
     bg = new Background()
 
     windowResized()
@@ -77,14 +90,56 @@ function draw() {
 
 
 function runWithBackground(fn) {
-    if (targetedStrike) bg.draw(null, skele.mode == Skeleton.MODES.HIT) 
-    else bg.draw(0)
+    if (targetedStrike) {
+        bg.draw(null, skele.mode == Skeleton.MODES.HIT) 
+        showGhost()
+    } else bg.draw(0)
 
     fn()
 
     if (!targetedStrike) {
         bg.draw(1)
+        showGhost()
         skele.draw()
+    }
+}
+
+function showGhost() {
+    if (!ghostEnabled) return
+
+    if (ghostExitFadeFrameCount > GHOST_FADE_TIME) {
+        ghostExitFadeFrameCount = 0
+        ghostWaitFrameCount = 0
+        ghostEnterFadeFrameCount = 0
+        ghostEnabled = false
+    } else if (ghostWaitFrameCount > GHOST_WAIT_TIME) {
+        ghost.animate()
+        const alpha = map(ghostExitFadeFrameCount, 0, GHOST_FADE_TIME, 255, 0)
+        ghostExitFadeFrameCount += 1
+        ghost.draw(alpha)
+        noStroke()
+        fill(255)
+        textAlign(CENTER, CENTER)
+        textSize(ghost.getHeight()*0.2)
+        push()
+        translate(ghost.x*1.02,ghost.y)
+        rotate(PI/4)
+        text("Bye!", 0, 0)
+        pop()
+    } else if (ghostEnterFadeFrameCount > GHOST_FADE_TIME) {
+        ghostWaitFrameCount += 1
+        ghost.animate()
+        ghost.draw()
+        noStroke()
+        fill(255)
+        textAlign(CENTER, CENTER)
+        textSize(ghost.getHeight()*0.15)
+        text("Hi!", ghost.x, ghost.y*0.97)
+    } else {
+        ghost.animate()
+        const alpha = map(ghostEnterFadeFrameCount, 0, GHOST_FADE_TIME, 0, 255)
+        ghostEnterFadeFrameCount += 1
+        ghost.draw(alpha)
     }
 }
 
@@ -165,9 +220,11 @@ function windowResized() {
     const hMax = roundToCell(windowHeight)
     resizeCanvas(w, h > hMax ? hMax : h)
 
-    gridSize = gridSize*cellSize > width ? Math.floor(width/cellSize) : MAX_GRID_SIZE
     skele.resize(width*SKELE_SIZE_RATIO)
+    ghost.resize(width*GHOST_SIZE_RATIO)
+    ghost.setPos(width*GHOST_X_POS, height-width*GHOST_Y_BOTTOM_OFFSET)
 
+    gridSize = gridSize*cellSize > width ? Math.floor(width/cellSize) : MAX_GRID_SIZE
     const xMax = Math.floor(width-gridSize*cellSize/2)
     const xMin = Math.floor(gridSize*cellSize/2)
     skele.setPos(utils.randInt(xMax, xMin), height-skele.getHeight())
@@ -208,6 +265,10 @@ function init(goalX, isTargeted=false) {
 
 function mouseClicked() {
     if (mouseX>0 && mouseX<width && mouseY>0 && mouseY<height && skele.isPatrolling()) {
-        init(mouseX, true)
+        if (ghost.contains(mouseX, mouseY)) {
+            ghostEnabled = true
+        } else {
+            init(mouseX, true)
+        }
     }
 }

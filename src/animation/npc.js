@@ -1,5 +1,6 @@
-class Skeleton {
+class Npc {
     static LEFT = 'LEFT'
+    static CENTER = 'CENTER'
     static RIGHT = 'RIGHT'
 
     static MODES = {
@@ -10,32 +11,22 @@ class Skeleton {
         WALK: 'WALK',
     }
 
-    constructor(x, y) {
+    constructor(x, y, mode=Npc.MODES.IDLE, direction=Npc.LEFT) {
         this.x = x
         this.y = y
-        this.mode = Skeleton.MODES.IDLE
-        this.direction = Skeleton.LEFT
-        this.sprites = { [`${Skeleton.LEFT}`]:{}, [`${Skeleton.RIGHT}`]:{} }
-
-        this.sprites[Skeleton.RIGHT][Skeleton.MODES.HIT] = new Sprite(SKELEHIT.img, SKELEHIT.frames)
-        this.sprites[Skeleton.RIGHT][Skeleton.MODES.IDLE] = new Sprite(SKELEIDLE.img, SKELEIDLE.frames, 0.25)
-        this.sprites[Skeleton.RIGHT][Skeleton.MODES.DEAD] = new Sprite(SKELEDEAD.img, SKELEDEAD.frames)
-        this.sprites[Skeleton.RIGHT][Skeleton.MODES.REVIVE] = new Sprite(SKELEDEAD.img, SKELEDEAD.frames, 0.25, false, true, [0])
-        this.sprites[Skeleton.RIGHT][Skeleton.MODES.WALK] = new Sprite(SKELEWALK.img, SKELEWALK.frames, 0.5)
-
-        this.sprites[Skeleton.LEFT][Skeleton.MODES.HIT] = new Sprite(SKELEHIT.img, SKELEHIT.frames, 1, true)
-        this.sprites[Skeleton.LEFT][Skeleton.MODES.IDLE] = new Sprite(SKELEIDLE.img, SKELEIDLE.frames, 0.25, true)
-        this.sprites[Skeleton.LEFT][Skeleton.MODES.DEAD] = new Sprite(SKELEDEAD.img, SKELEDEAD.frames, 1, true)
-        this.sprites[Skeleton.LEFT][Skeleton.MODES.REVIVE] = new Sprite(SKELEDEAD.img, SKELEDEAD.frames, 0.25, true, true, [0])
-        this.sprites[Skeleton.LEFT][Skeleton.MODES.WALK] = new Sprite(SKELEWALK.img, SKELEWALK.frames, 0.5, true)
+        this.mode = mode
+        this.direction = direction
+        this._loadSprites()
 
         this.walkSpeed = 1
         this.moveTargetX = null
         this.moveTargetY = null
     }
 
+    _loadSprites() {} // Implement
+
     isPatrolling() {
-        return this.mode==Skeleton.MODES.IDLE || this.mode==Skeleton.MODES.WALK
+        return this.mode==Npc.MODES.IDLE || this.mode==Npc.MODES.WALK
     }
 
     hasMoveTarget() {
@@ -75,7 +66,7 @@ class Skeleton {
         if (this.mode == mode) return 
         this.mode = mode
         this.getSprite().resetAnimation()
-        if (this.mode==Skeleton.MODES.HIT) {
+        if (this.mode==Npc.MODES.HIT) {
             this.moveTargetX = null
             this.moveTargetY = null
         }
@@ -88,18 +79,18 @@ class Skeleton {
     animate() {
         if (this.isPatrolling() && this.hasMoveTarget()) {
             if (this.contains(this.moveTargetX, this.moveTargetY)) {
-                this.setMode(Skeleton.MODES.IDLE)
+                this.setMode(Npc.MODES.IDLE)
                 this.moveTargetX = null
                 this.moveTargetY = null
             } else {
                 let xMove = 0
-                this.setMode(Skeleton.MODES.WALK)
+                this.setMode(Npc.MODES.WALK)
                 if (this.moveTargetX<this.x) {
                     xMove = -this.walkSpeed
-                    this.direction = Skeleton.LEFT
+                    this.direction = Npc.LEFT
                 } else if (this.moveTargetX>this.x) {
                     xMove = this.walkSpeed
-                    this.direction = Skeleton.RIGHT
+                    this.direction = Npc.RIGHT
                 }
                 const yMove = this.moveTargetY<this.y ? -this.walkSpeed : this.moveTargetY>this.y ? this.walkSpeed : 0
                 this.setPos(this.x+xMove, this.y+yMove)
@@ -120,13 +111,47 @@ class Skeleton {
 
     resize(w) {
         let owMax = 0
-        for (const s in this.sprites[Skeleton.RIGHT]) {
-            owMax = this.sprites[Skeleton.RIGHT][s].ow > owMax ? this.sprites[Skeleton.RIGHT][s].ow : owMax
+        for (const d in this.sprites) {
+            for (const s in this.sprites[d]) {
+                owMax = this.sprites[d][s].ow > owMax ? this.sprites[d][s].ow : owMax
+                this.sprites[d][s].resize(w*this.sprites[d][s].ow/owMax, 0)
+            }
         }
         for (const d in this.sprites) {
             for (const s in this.sprites[d]) {
                 this.sprites[d][s].resize(w*this.sprites[d][s].ow/owMax, 0)
             }
         }
+    }
+}
+
+
+class Skeleton extends Npc {
+    _loadSprites() {
+        this.sprites = { [`${Npc.LEFT}`]:{}, [`${Npc.RIGHT}`]:{}, [`${Npc.CENTER}`]:{} }
+        this.sprites[Npc.RIGHT][Npc.MODES.HIT] = new Sprite(SKELEHIT.img, SKELEHIT.frames)
+        this.sprites[Npc.RIGHT][Npc.MODES.IDLE] = new Sprite(SKELEIDLE.img, SKELEIDLE.frames, 0.25)
+        this.sprites[Npc.RIGHT][Npc.MODES.DEAD] = new Sprite(SKELEDEAD.img, SKELEDEAD.frames)
+        this.sprites[Npc.RIGHT][Npc.MODES.REVIVE] = new Sprite(SKELEDEAD.img, SKELEDEAD.frames, 0.25, false, true, [0])
+        this.sprites[Npc.RIGHT][Npc.MODES.WALK] = new Sprite(SKELEWALK.img, SKELEWALK.frames, 0.5)
+
+        this.sprites[Npc.LEFT][Npc.MODES.HIT] = new Sprite(SKELEHIT.img, SKELEHIT.frames, 1, true)
+        this.sprites[Npc.LEFT][Npc.MODES.IDLE] = new Sprite(SKELEIDLE.img, SKELEIDLE.frames, 0.25, true)
+        this.sprites[Npc.LEFT][Npc.MODES.DEAD] = new Sprite(SKELEDEAD.img, SKELEDEAD.frames, 1, true)
+        this.sprites[Npc.LEFT][Npc.MODES.REVIVE] = new Sprite(SKELEDEAD.img, SKELEDEAD.frames, 0.25, true, true, [0])
+        this.sprites[Npc.LEFT][Npc.MODES.WALK] = new Sprite(SKELEWALK.img, SKELEWALK.frames, 0.5, true)
+    }
+}
+
+class Ghost extends Npc {
+    _loadSprites() {
+        this.sprites = { [`${Npc.LEFT}`]:{}, [`${Npc.RIGHT}`]:{}, [`${Npc.CENTER}`]:{} }
+        this.sprites[Npc.LEFT][Npc.MODES.IDLE] = new Sprite(GHOSTIDLE.img, GHOSTIDLE.frames, 0.2, true)
+    }
+
+    draw(alpha=255) {
+        tint(255, alpha)
+        super.draw()
+        noTint()
     }
 }
