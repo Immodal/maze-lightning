@@ -79,7 +79,7 @@ function lightningSearching() {
     if (!targetedStrike && randomStrikeDelayFrameCount<RANDOM_STRIKE_DELAY) {
         randomStrikeDelayFrameCount += 1
     } else {
-        lightning1.drawDebug()
+        //lightning1.drawDebug()
         //lightning1.drawSearch(true)
         lightning1.drawArcs()
         lightning1.drawMainPath(1)
