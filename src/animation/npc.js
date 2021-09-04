@@ -150,7 +150,7 @@ class Ghost extends Npc {
     }
 
     draw(alpha=255) {
-        tint(255, alpha)
+        if (alpha<255) tint(255, alpha)
         super.draw()
         noTint()
     }
