@@ -7,6 +7,7 @@ The app can be found here: https://immodal.github.io/maze-lightning/. Note: Mobi
 Art assets provided by these amazing folks:
 * [Background](https://anokolisa.itch.io/moon-graveyard)
 * [Skeleton](https://jesse-m.itch.io/skeleton-pack)
+* [Ghost](https://master-blazter.itch.io/ghostspritepack)
 
 <p align="center">
   <img src="readme/app.gif" alt="Click to summon lightning"/>
