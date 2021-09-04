@@ -12,7 +12,7 @@ const TEXT_MARGIN = 5
 const MAX_GRID_SIZE = 31
 let gridSize = MAX_GRID_SIZE
 
-const N_COLUMNS = 150
+const N_COLUMNS = 160
 let cellSize = null
 
 const SKELE_DEAD_WAIT = 50
