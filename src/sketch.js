@@ -3,11 +3,13 @@
 //https://jesse-m.itch.io/skeleton-pack
 
 const MARGIN = 50
-const CELL_SIZE = 10
 const SKELE_SIZE_RATIO = 0.1
-const MAX_GRID_SIZE = 31
 
+const MAX_GRID_SIZE = 31
 let gridSize = MAX_GRID_SIZE
+
+const N_COLUMNS = 200
+let cellSize = null
 
 const SKELE_DEAD_WAIT = 50
 let skeleDeadFrameCount = 0
@@ -77,7 +79,7 @@ function lightningSearching() {
     if (!targetedStrike && randomStrikeDelayFrameCount<RANDOM_STRIKE_DELAY) {
         randomStrikeDelayFrameCount += 1
     } else {
-        //lightning1.drawDebug()
+        lightning1.drawDebug()
         //lightning1.drawSearch(true)
         lightning1.drawArcs()
         lightning1.drawMainPath(1)
@@ -86,8 +88,8 @@ function lightningSearching() {
     }
 
     if (skele.isPatrolling() && !skele.hasMoveTarget() && Math.random() < 0.01) {
-        const xMax = Math.floor(width-gridSize*CELL_SIZE/2)
-        const xMin = Math.floor(gridSize*CELL_SIZE/2)
+        const xMax = Math.floor(width-gridSize*cellSize/2)
+        const xMin = Math.floor(gridSize*cellSize/2)
         skele.moveTo(utils.randInt(xMax, xMin), height-skele.getHeight())
     }
     skele.draw()
@@ -100,8 +102,8 @@ function lightningStrike() {
     flasher.draw()
     if (targetedStrike && !checkedStrike && lightning1.solver.path.length) {
         for (const cell of lightning1.solver.path) {
-            const cellX = cell.x*CELL_SIZE + lightning1.gx
-            const cellY = cell.y*CELL_SIZE + lightning1.gy
+            const cellX = cell.x*cellSize + lightning1.gx
+            const cellY = cell.y*cellSize + lightning1.gy
             if (skele.contains(cellX, cellY)) {
                 skele.setMode(Skeleton.MODES.HIT)
                 break
@@ -139,20 +141,21 @@ function skeleRevive() {
 
 
 function windowResized() {
+    cellSize = Math.floor((windowWidth - MARGIN)/N_COLUMNS)
     // Round to nearest number wholly divisible by cell size
     // to prevent gaps in lightning
-    const roundToCell = (x) => Math.ceil(x / CELL_SIZE) * CELL_SIZE - MARGIN
+    const roundToCell = (x) => Math.ceil(x / cellSize) * cellSize - MARGIN
     const w = roundToCell(windowWidth)
     bg.resize(w)
     const h = roundToCell(bg.layers[0].height)
     const hMax = roundToCell(windowHeight)
     resizeCanvas(w, h > hMax ? hMax : h)
 
-    gridSize = gridSize*CELL_SIZE > width ? Math.floor(width/CELL_SIZE) : MAX_GRID_SIZE
+    gridSize = gridSize*cellSize > width ? Math.floor(width/cellSize) : MAX_GRID_SIZE
     skele.resize(width*SKELE_SIZE_RATIO)
 
-    const xMax = Math.floor(width-gridSize*CELL_SIZE/2)
-    const xMin = Math.floor(gridSize*CELL_SIZE/2)
+    const xMax = Math.floor(width-gridSize*cellSize/2)
+    const xMin = Math.floor(gridSize*cellSize/2)
     skele.setPos(utils.randInt(xMax, xMin), height-skele.getHeight())
     skele.moveTargetX = null
     skele.moveTargetY = null
@@ -161,16 +164,16 @@ function windowResized() {
 }
 
 function randomInit() {
-    const xMax = Math.floor(width-gridSize*CELL_SIZE/2)
-    const xMin = Math.floor(gridSize*CELL_SIZE/2)
+    const xMax = Math.floor(width-gridSize*cellSize/2)
+    const xMin = Math.floor(gridSize*cellSize/2)
     init(utils.randInt(xMax, xMin))
 }
 
 function init(goalX, isTargeted=false) {
     targetedStrike = isTargeted
     randomStrikeDelayFrameCount = 0
-    const nCols = gridSize*CELL_SIZE > width ? Math.floor(width/CELL_SIZE) : gridSize
-    const nRows = Math.floor(height/CELL_SIZE)
+    const nCols = gridSize*cellSize > width ? Math.floor(width/cellSize) : gridSize
+    const nRows = Math.floor(height/cellSize)
 
     const gCol = Math.floor(nCols/2)
     const gRow = nRows - 1 // Tie goal to bottom
@@ -181,7 +184,7 @@ function init(goalX, isTargeted=false) {
     maze_gen.run()
     solver = new BreadthFirstSearch(grid)
 
-    lightning1 = new Lightning(goalX, 0, CELL_SIZE, flasher, grid, solver)
+    lightning1 = new Lightning(goalX, 0, cellSize, flasher, grid, solver)
     checkedStrike = false
 
     if (!skele.isPatrolling()) skele.setMode(Skeleton.MODES.IDLE)
