@@ -23,8 +23,7 @@ function preload() {
     SKELEHIT.img = loadImage(SKELEHIT.src)
     SKELEIDLE.img = loadImage(SKELEIDLE.src)
     SKELEDEAD.img = loadImage(SKELEDEAD.src)
-    SKELEWALKRIGHT.img = loadImage(SKELEWALKRIGHT.src)
-    SKELEWALKLEFT.img = loadImage(SKELEWALKLEFT.src)
+    SKELEWALK.img = loadImage(SKELEWALK.src)
 }
 
 function setup() {
@@ -40,13 +39,13 @@ function setup() {
 function draw() {
     // Stalled or no goal completion
     if (lightning1.isStalled() ||
-        lightning1.complete && (skele.mode==Skeleton.MODES.IDLE || skele.mode==Skeleton.MODES.WALKLEFT || skele.mode == Skeleton.MODES.WALKRIGHT)) {
+        lightning1.complete && skele.isPatrolling()) {
         randomInit()
     // Skele is dead, wait for set number of frames
     } else if (skele.mode==Skeleton.MODES.DEAD && skele.cycles()>=1) {
         runWithBackground(skeleDeadHoldTime)
     // Lightning has faded, Skele death animation
-    } else if (lightning1.complete && (skele.mode==Skeleton.MODES.HIT || skele.mode==Skeleton.MODES.DEAD)) {
+    } else if (lightning1.complete && !skele.isPatrolling()) {
         runWithBackground(skeleDead)
     // Lightning search
     } else if (lightning1.isSearching()) {
@@ -114,7 +113,7 @@ function skeleDead() {
 
 function skeleDeadHoldTime() {
     skeleDeadFrameCount += 1
-    skele.draw(skele.sprites[Skeleton.MODES.DEAD].len-1)
+    skele.draw(skele.getSprite(Skeleton.MODES.DEAD).len-1)
     if (skeleDeadFrameCount>=skeleDeadWait) randomInit()
 }
 
@@ -164,7 +163,7 @@ function init(goalX, isTargeted=false) {
     lightning1 = new Lightning(goalX, 0, CELL_SIZE, flasher, grid, solver)
     checkedStrike = false
 
-    if (skele.mode != Skeleton.MODES.IDLE && skele.mode != Skeleton.MODES.WALKLEFT && skele.mode != Skeleton.MODES.WALKRIGHT) skele.setMode(Skeleton.MODES.IDLE)
+    if (!skele.isPatrolling()) skele.setMode(Skeleton.MODES.IDLE)
     if (!skele.hasMoveTarget()) {
         const xMax = Math.floor(width-gridSize*CELL_SIZE/2)
         const xMin = Math.floor(gridSize*CELL_SIZE/2)

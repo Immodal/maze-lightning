@@ -1,38 +1,55 @@
 class Skeleton {
+    static LEFT = 'LEFT'
+    static RIGHT = 'RIGHT'
+
     static MODES = {
-        HIT: 0,
-        IDLE: 1,
-        DEAD: 2,
-        WALKLEFT: 3,
-        WALKRIGHT: 4,
+        HIT: 'HIT',
+        IDLE: 'IDLE',
+        DEAD: 'DEAD',
+        WALK: 'WALK',
     }
 
     constructor(x, y) {
         this.x = x
         this.y = y
         this.mode = Skeleton.MODES.IDLE
-        this.sprites = {}
-        this.sprites[Skeleton.MODES.HIT] = new Sprite(SKELEHIT.img, SKELEHIT.frames)
-        this.sprites[Skeleton.MODES.IDLE] = new Sprite(SKELEIDLE.img, SKELEIDLE.frames, 0.25)
-        this.sprites[Skeleton.MODES.DEAD] = new Sprite(SKELEDEAD.img, SKELEDEAD.frames)
-        this.sprites[Skeleton.MODES.WALKLEFT] = new Sprite(SKELEWALKLEFT.img, SKELEWALKLEFT.frames, 0.5)
-        this.sprites[Skeleton.MODES.WALKRIGHT] = new Sprite(SKELEWALKRIGHT.img, SKELEWALKRIGHT.frames, 0.5)
+        this.direction = Skeleton.LEFT
+        this.sprites = { [`${Skeleton.LEFT}`]:{}, [`${Skeleton.RIGHT}`]:{} }
+        this.sprites[Skeleton.RIGHT][Skeleton.MODES.HIT] = new Sprite(SKELEHIT.img, SKELEHIT.frames)
+        this.sprites[Skeleton.RIGHT][Skeleton.MODES.IDLE] = new Sprite(SKELEIDLE.img, SKELEIDLE.frames, 0.25)
+        this.sprites[Skeleton.RIGHT][Skeleton.MODES.DEAD] = new Sprite(SKELEDEAD.img, SKELEDEAD.frames)
+        this.sprites[Skeleton.RIGHT][Skeleton.MODES.WALK] = new Sprite(SKELEWALK.img, SKELEWALK.frames, 0.5)
+        this.sprites[Skeleton.LEFT][Skeleton.MODES.HIT] = new Sprite(SKELEHIT.img, SKELEHIT.frames, 1, true)
+        this.sprites[Skeleton.LEFT][Skeleton.MODES.IDLE] = new Sprite(SKELEIDLE.img, SKELEIDLE.frames, 0.25, true)
+        this.sprites[Skeleton.LEFT][Skeleton.MODES.DEAD] = new Sprite(SKELEDEAD.img, SKELEDEAD.frames, 1, true)
+        this.sprites[Skeleton.LEFT][Skeleton.MODES.WALK] = new Sprite(SKELEWALK.img, SKELEWALK.frames, 0.5, true)
 
         this.walkSpeed = 1
         this.moveTargetX = null
         this.moveTargetY = null
     }
 
+    isPatrolling() {
+        return this.mode==Skeleton.MODES.IDLE || this.mode==Skeleton.MODES.WALK
+    }
+
     hasMoveTarget() {
         return this.moveTargetX!==null && this.moveTargetY!==null
     }
 
+    getSprite(mode=null) {
+        if (!mode) {
+            return this.sprites[this.direction][this.mode]
+        }
+        return this.sprites[this.direction][mode]
+    }
+
     getHeight() {
-        return this.sprites[this.mode].h
+        return this.getSprite().h
     }
 
     getWidth() {
-        return this.sprites[this.mode].w
+        return this.getSprite().w
     }
 
     getLeftCornerX() {
@@ -52,7 +69,7 @@ class Skeleton {
     setMode(mode) {
         if (this.mode == mode) return 
         this.mode = mode
-        this.sprites[this.mode].resetAnimation()
+        this.getSprite().resetAnimation()
         if (this.mode==Skeleton.MODES.HIT) {
             this.moveTargetX = null
             this.moveTargetY = null
@@ -60,49 +77,51 @@ class Skeleton {
     }
 
     draw(i=null) {
-        this.sprites[this.mode].draw(this.getLeftCornerX(), this.y, i)
+        this.getSprite().draw(this.getLeftCornerX(), this.y, i)
     }
 
     animate() {
-        if ((this.mode==Skeleton.MODES.IDLE || this.mode==Skeleton.MODES.WALKLEFT || this.mode==Skeleton.MODES.WALKRIGHT)
-            && this.hasMoveTarget()) {
+        if (this.isPatrolling() && this.hasMoveTarget()) {
             if (this.contains(this.moveTargetX, this.moveTargetY)) {
                 this.setMode(Skeleton.MODES.IDLE)
                 this.moveTargetX = null
                 this.moveTargetY = null
             } else {
                 let xMove = 0
+                this.setMode(Skeleton.MODES.WALK)
                 if (this.moveTargetX<this.x) {
                     xMove = -this.walkSpeed
-                    this.setMode(Skeleton.MODES.WALKLEFT)
+                    this.direction = Skeleton.LEFT
                 } else if (this.moveTargetX>this.x) {
                     xMove = this.walkSpeed
-                    this.setMode(Skeleton.MODES.WALKRIGHT)
+                    this.direction = Skeleton.RIGHT
                 }
                 const yMove = this.moveTargetY<this.y ? -this.walkSpeed : this.moveTargetY>this.y ? this.walkSpeed : 0
                 this.setPos(this.x+xMove, this.y+yMove)
             }
         }
-        this.sprites[this.mode].animate()
+        this.getSprite().animate()
     }
 
     cycles() {
-        return this.sprites[this.mode].cycles
+        return this.getSprite().cycles
     }
 
     contains(x, y) {
-        const sprite = this.sprites[this.mode]
+        const sprite = this.getSprite()
         const cx = this.getLeftCornerX()
         return x >= cx && x <= cx+sprite.w && y >= this.y && y <= this.y+sprite.h
     }
 
     resize(w) {
         let owMax = 0
-        for (const s in this.sprites) {
-            owMax = this.sprites[s].ow > owMax ? this.sprites[s].ow : owMax
+        for (const s in this.sprites[Skeleton.RIGHT]) {
+            owMax = this.sprites[Skeleton.RIGHT][s].ow > owMax ? this.sprites[Skeleton.RIGHT][s].ow : owMax
         }
-        for (const s in this.sprites) {
-            this.sprites[s].resize(w*this.sprites[s].ow/owMax, 0)
+        for (const d in this.sprites) {
+            for (const s in this.sprites[d]) {
+                this.sprites[d][s].resize(w*this.sprites[d][s].ow/owMax, 0)
+            }
         }
     }
 }

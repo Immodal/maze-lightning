@@ -1,10 +1,11 @@
 // https://editor.p5js.org/codingtrain/sketches/vhnFx1mml
 class Sprite {
-    constructor(spriteSheet, len, speed=1) {
+    constructor(spriteSheet, len, speed=1, mirror=false) {
         this.len = len
         this.spriteSheet = spriteSheet
         this.resetFrames()
 
+        this.mirror = mirror
         this.speed = speed
         this.index = 0
         this.cumulativeIndex = 0
@@ -12,7 +13,14 @@ class Sprite {
     }
   
     draw(x, y, i=null) {
-        image(this.frames[i ? i : this.index], x, y)
+        if (this.mirror) {
+            push()
+            scale(-1,1)
+            image(this.frames[i ? i : this.index], -x-this.w, y)
+            pop()
+        } else {
+            image(this.frames[i ? i : this.index], x, y)
+        }
     }
   
     animate() {
