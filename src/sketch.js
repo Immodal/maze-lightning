@@ -157,6 +157,7 @@ function windowResized() {
     const xMax = Math.floor(width-gridSize*cellSize/2)
     const xMin = Math.floor(gridSize*cellSize/2)
     skele.setPos(utils.randInt(xMax, xMin), height-skele.getHeight())
+    skele.setMode(Skeleton.MODES.IDLE)
     skele.moveTargetX = null
     skele.moveTargetY = null
     
