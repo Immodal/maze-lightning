@@ -7,6 +7,7 @@ const SKELE_SIZE_RATIO = 0.1
 
 const TITLE_SIZE = 25
 const TEXT_SIZE = 16
+const SUBTEXT_SIZE = 12
 const TEXT_MARGIN = 5
 
 const MAX_GRID_SIZE = 31
@@ -65,15 +66,17 @@ function draw() {
         runWithBackground(lightningStrike)
     }
 
-    strokeWeight(1)
+    strokeWeight(2)
     stroke(0)
-    fill(`rgba(255,255,255,0.75)`)
+    fill(`rgba(255,255,255,0.8)`)
     textAlign(LEFT, TOP)
     textSize(TITLE_SIZE)
     text("Maze Lightning", TEXT_MARGIN, TEXT_MARGIN)
     textSize(TEXT_SIZE)
-    text("- Lightning shape defined by a randomly generated maze.", TEXT_MARGIN, TITLE_SIZE + 2*TEXT_MARGIN)
-    text("- Click anywhere to call down lightning.", TEXT_MARGIN, TITLE_SIZE + TEXT_SIZE + 3*TEXT_MARGIN)
+    text("- Click anywhere to call down lightning.", TEXT_MARGIN, TITLE_SIZE + 2*TEXT_MARGIN)
+    text("- Lightning shape defined by a randomly generated maze.", TEXT_MARGIN, TITLE_SIZE + TEXT_SIZE + 3*TEXT_MARGIN)
+    textSize(SUBTEXT_SIZE)
+    text("* Mobile users may experience poor performance.", TEXT_MARGIN, TITLE_SIZE + 2*TEXT_SIZE + 4*TEXT_MARGIN)
 }
 
 
