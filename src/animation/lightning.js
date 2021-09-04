@@ -68,7 +68,7 @@ class Lightning {
             alpha = 1
         }
         // Draw lightning
-        this.drawMainPath(alpha, 10)
+        this.drawMainPath(alpha, 10, true)
 
         if (framesElapsed > this.fadeDelay + this.fadeLength) this.complete = true
     }
@@ -112,11 +112,20 @@ class Lightning {
         }
     }
 
-    drawMainPath(alpha, glowRange=3) {
+    drawMainPath(alpha, glowRange=3, fillToBottom=false) {
         const exclusions = new CellSet(this.solver.path)
         for (const c of this.solver.path) {
             this.drawCell(c, `rgba(${this.maxBrightness}, ${this.maxBrightness}, ${this.maxBrightness}, ${alpha})`)
             this.drawGlow(c, alpha, glowRange, exclusions)
+        }
+        const finalCell = this.solver.path[this.solver.path.length-1]
+        if (fillToBottom && finalCell.y < this.grid.goalCell.y) {
+            for (let i=finalCell.y+1; i<=this.grid.goalCell.y ; i++) {
+                const c = this.grid.cells.get(finalCell.x, i)
+                exclusions.add(c)
+                this.drawCell(c, `rgba(${this.maxBrightness}, ${this.maxBrightness}, ${this.maxBrightness}, ${alpha})`)
+                this.drawGlow(c, alpha, glowRange, exclusions)
+            }
         }
     }
 

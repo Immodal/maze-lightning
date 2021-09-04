@@ -8,8 +8,12 @@ const SKELE_SIZE_RATIO = 0.1
 const MAX_GRID_SIZE = 31
 
 let gridSize = MAX_GRID_SIZE
-let skeleDeadWait = 50
+
+const SKELE_DEAD_WAIT = 50
 let skeleDeadFrameCount = 0
+
+const RANDOM_STRIKE_DELAY = 100
+let randomStrikeDelayFrameCount = 0
 let checkedStrike = false
 let targetedStrike = false
 
@@ -41,7 +45,7 @@ function draw() {
     if (lightning1.isStalled() || lightning1.complete && skele.isPatrolling()) {
         randomInit()
     // Revive Skele
-    } else if (skeleDeadFrameCount>=skeleDeadWait) {
+    } else if (skeleDeadFrameCount>=SKELE_DEAD_WAIT) {
         runWithBackground(skeleRevive)
     // Lightning has faded, Skele death animation
     } else if (lightning1.complete && !skele.isPatrolling()) {
@@ -70,10 +74,17 @@ function runWithBackground(fn) {
 
 
 function lightningSearching() {
-    //lightning1.drawDebug()
-    //lightning1.drawSearch(true)
-    lightning1.drawArcs()
-    lightning1.drawMainPath(1)
+    if (!targetedStrike && randomStrikeDelayFrameCount<RANDOM_STRIKE_DELAY) {
+        randomStrikeDelayFrameCount += 1
+    } else {
+        //lightning1.drawDebug()
+        //lightning1.drawSearch(true)
+        lightning1.drawArcs()
+        lightning1.drawMainPath(1)
+        lightning1.step()
+        lightning1.step()
+    }
+
     if (skele.isPatrolling() && !skele.hasMoveTarget() && Math.random() < 0.01) {
         const xMax = Math.floor(width-gridSize*CELL_SIZE/2)
         const xMin = Math.floor(gridSize*CELL_SIZE/2)
@@ -81,8 +92,6 @@ function lightningSearching() {
     }
     skele.draw()
     skele.animate()
-    lightning1.step()
-    lightning1.step()
 }
 
 
@@ -159,6 +168,7 @@ function randomInit() {
 
 function init(goalX, isTargeted=false) {
     targetedStrike = isTargeted
+    randomStrikeDelayFrameCount = 0
     const nCols = gridSize*CELL_SIZE > width ? Math.floor(width/CELL_SIZE) : gridSize
     const nRows = Math.floor(height/CELL_SIZE)
 
@@ -166,7 +176,7 @@ function init(goalX, isTargeted=false) {
     const gRow = nRows - 1 // Tie goal to bottom
 
     flasher = new Flasher()
-    grid = new SquareGrid(nCols, nRows, gCol, gRow)
+    grid = new SquareGrid(nCols, nRows, gCol, gRow, 2)
     maze_gen = new RandomPrims(grid)
     maze_gen.run()
     solver = new BreadthFirstSearch(grid)
@@ -179,7 +189,7 @@ function init(goalX, isTargeted=false) {
 }
 
 function mouseClicked() {
-    if (mouseX>0 && mouseX<width && mouseY>0 && mouseY<height) {
+    if (mouseX>0 && mouseX<width && mouseY>0 && mouseY<height && skele.isPatrolling()) {
         init(mouseX, true)
     }
 }

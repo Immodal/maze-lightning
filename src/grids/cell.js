@@ -38,8 +38,8 @@ class SquareCell extends Cell {
         return dist(this.x, this.y, cell.x, cell.y)
     }
 
-    equals(cell) {
-        return cell && this.x == cell.x && this.y == cell.y
+    equals(cell, tol=0) {
+        return cell && cell.x >= this.x-tol && cell.x <= this.x+tol && cell.y >= this.y-tol && cell.y <= this.y+tol
     }
 }
 

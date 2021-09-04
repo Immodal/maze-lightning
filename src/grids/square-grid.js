@@ -1,5 +1,6 @@
 class SquareGrid {
-    constructor(nc, nr, goalCol, goalRow) {
+    constructor(nc, nr, goalCol, goalRow, tol=0) {
+        this.tol=tol
         this.nr = nr
         this.nc = nc
         this.cells = new CellSet()
@@ -17,7 +18,7 @@ class SquareGrid {
     }
 
     isGoal(cell) {
-        if (this.goalCell) return this.goalCell.equals(cell)
+        if (this.goalCell) return this.goalCell.equals(cell, this.tol)
         return cell.y == this.nr-1
     }
 
