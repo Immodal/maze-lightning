@@ -5,6 +5,10 @@
 const MARGIN = 50
 const SKELE_SIZE_RATIO = 0.1
 
+const TITLE_SIZE = 25
+const TEXT_SIZE = 16
+const TEXT_MARGIN = 5
+
 const MAX_GRID_SIZE = 31
 let gridSize = MAX_GRID_SIZE
 
@@ -35,6 +39,7 @@ function preload() {
 function setup() {
     const canvas = createCanvas(1, 1)
     canvas.parent("#cv")
+    textFont('Georgia')
 
     skele = new Skeleton(0, 0)
     bg = new Background()
@@ -59,6 +64,16 @@ function draw() {
     } else {
         runWithBackground(lightningStrike)
     }
+
+    strokeWeight(1)
+    stroke(0)
+    fill(`rgba(255,255,255,0.75)`)
+    textAlign(LEFT, TOP)
+    textSize(TITLE_SIZE)
+    text("Maze Lightning", TEXT_MARGIN, TEXT_MARGIN)
+    textSize(TEXT_SIZE)
+    text("- Lightning shape defined by a randomly generated maze.", TEXT_MARGIN, TITLE_SIZE + 2*TEXT_MARGIN)
+    text("- Click anywhere to call down lightning.", TEXT_MARGIN, TITLE_SIZE + TEXT_SIZE + 3*TEXT_MARGIN)
 }
 
 
