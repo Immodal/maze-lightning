@@ -84,16 +84,16 @@ class Lightning {
         for (let i=1; i<glowRange; i++ ) {
             const clr = `rgba(0,0,${this.maxBrightness},${map(i,1,glowRange,alpha*0.5,0)})`
             fill(clr)
-            if (cell.x+i<this.grid.nc && !exclusions.has(cell.x+i, cell.y)) {
+            if (!exclusions.has(cell.x+i, cell.y)) {
                 rect((cell.x+i)*this.csize+this.gx, cell.y*this.csize+this.gy, this.csize, this.csize)
             }
-            if (cell.x-i>0 && !exclusions.has(cell.x-i, cell.y)) {
+            if (!exclusions.has(cell.x-i, cell.y)) {
                 rect((cell.x-i)*this.csize+this.gx, cell.y*this.csize+this.gy, this.csize, this.csize)
             }
-            if (cell.y+i<this.grid.nr && !exclusions.has(cell.x, cell.y+i)) {
+            if (!exclusions.has(cell.x, cell.y+i)) {
                 rect(cell.x*this.csize+this.gx, (cell.y+i)*this.csize+this.gy, this.csize, this.csize)
             }
-            if (cell.y-i>0 && !exclusions.has(cell.x, cell.y-i)) {
+            if (!exclusions.has(cell.x, cell.y-i)) {
                 rect(cell.x*this.csize+this.gx, (cell.y-i)*this.csize+this.gy, this.csize, this.csize)
             }
         }
