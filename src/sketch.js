@@ -174,7 +174,7 @@ function init(goalX, isTargeted=false) {
     targetedStrike = isTargeted
     randomStrikeDelayFrameCount = 0
     const nCols = gridSize*cellSize > width ? Math.floor(width/cellSize) : gridSize
-    const nRows = Math.floor(height/cellSize)
+    const nRows = Math.ceil(height/cellSize)
 
     const gCol = Math.floor(nCols/2)
     const gRow = nRows - 1 // Tie goal to bottom
